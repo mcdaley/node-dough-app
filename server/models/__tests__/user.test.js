@@ -46,13 +46,40 @@ describe('User', () => {
       })
     })
 
+    it('Fails to save an invalid user to DB', (done) => {
+      let badUser = new User()
+
+      badUser.save( function(err) {
+        expect(err.errors.email).to.exist
+        expect(err.errors.email.message).to.match(/email is required/)
+        done()
+      })
+    })
+
     it('Saves valid user to DB', (done) => {
-      let user = new User({email: 'marv@bills.com', phone: '716-649-1475'})
+      let user = new User({email: 'avp@bills.com'})
 
       user.save( function(err) {
         expect(err).to.not.exist
         done()
       })
+    })
+
+    it('Saves valid user w/ fields to DB', (done) => {
+      let user = new User({email: 'marv@bills.com', phone: '716-649-1475'})
+
+      user
+        .save()
+        .then( () => {
+          User.findOne({email: 'marv@bills.com'})
+            .then( (marv) => {
+              expect(marv.email).to.equal('marv@bills.com')
+              expect(marv.phone).to.equal('716-649-1475')
+              done()
+            })
+            .catch( (err) => done(err) )
+        })
+        .catch( (err) => done(err) )
     })
 
     it('Returns an error when saving an invalid User to DB', (done) => {
