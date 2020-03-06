@@ -25,3 +25,6 @@ As a User, I want to be able to create a banking/credit card account so that I c
 
 ### Add a Transaction
 As a User, I want to be able to add transactions to my Financial Accounts so that I can track all of my spending.
+
+### Switch Environments
+As a Developer, I want to be able to configure different environments, so that I can seemlessly switch between development, testing, and production.

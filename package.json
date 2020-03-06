@@ -9,15 +9,22 @@
     "mongoose": "^5.9.3"
   },
   "devDependencies": {
+    "@babel/core": "^7.8.7",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/preset-env": "^7.8.7",
+    "babel-jest": "^25.1.0",
+    "chai": "^4.2.0",
     "concurrently": "^5.1.0",
-    "nodemon": "^2.0.2"
+    "mocha": "^7.1.0",
+    "nodemon": "^2.0.2",
+    "supertest": "^4.0.2"
   },
   "scripts": {
     "client": "npm run start --prefix client",
     "server": "nodemon index.js",
     "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha server/**/*.test.js"
   },
   "author": "Michael Daley <mike@mcdaley.com> (https://www.mcdaley.com)",
   "license": "MIT"

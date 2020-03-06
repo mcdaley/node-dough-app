@@ -1,9 +1,9 @@
 //-----------------------------------------------------------------------------
 // server/models/transaction.js
 //-----------------------------------------------------------------------------
-const mongoose, { Schema }  = require('mongoose')
+const mongoose  = require('mongoose')
 
-const transactionSchema = new Schema({
+const transactionSchema = new mongoose.Schema({
   description: {
     type:       'String',
     required:   true,
