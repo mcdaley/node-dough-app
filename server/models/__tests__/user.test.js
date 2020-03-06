@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 // server/models/__tests__/user.test.js
 //-----------------------------------------------------------------------------
-const mongoose  = require('mongoose')
 const expect    = require('chai').expect
+const mongoose  = require('mongoose')
 
 const User      = require('../user')
 
@@ -11,13 +11,12 @@ const User      = require('../user')
  */
 describe('User', () => {
   describe('Validations', () => {
-    it('Requires an email', (done) => {
+    it('Requires an email', () => {
       let user = new User()
 
       user.validate( (err) => {
         expect(err.errors.email).to.exist
         expect(err.errors.email.message).to.equal('User email is required')
-        done()
       })
     })
 
@@ -33,6 +32,7 @@ describe('User', () => {
 
   describe('Saves to DB', () => {
     // Connect to DB before the tests
+    /**/
     before( function(done) {
       mongoose.connect(
         `mongodb://localhost:27017/node-dough-app`,
@@ -45,6 +45,7 @@ describe('User', () => {
         done()
       })
     })
+    /**/
 
     it('Fails to save an invalid user to DB', (done) => {
       let badUser = new User()

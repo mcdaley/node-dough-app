@@ -3,16 +3,22 @@
 //-----------------------------------------------------------------------------
 const mongoose = require('mongoose')
 
-let Account = mongoose.model('Account', {
+// Account schema
+const accountSchema = new mongoose.Schema({
   name: {
     type:       String,
-    required:   true,
+    required:   [true, 'Account name is required'],
     minLength:  1,
     trim:       true,
   },
-  accountType: {
+  financialInstitue: {
     type:       String,
-    enum:       ['Checking', 'Saving', 'Credit Card'],
+    minLength:  1,
+    trim:       true,
+  },
+  type: {
+    type:       String,
+    enum:       ['Checking', 'Savings', 'Credit Card'],
     default:    'Checking',
   },
   initialBalance: {
@@ -22,4 +28,6 @@ let Account = mongoose.model('Account', {
   }
 })
 
-module.exports = { Account }
+// Export Account model
+const Account   = mongoose.model('Account', accountSchema)
+module.exports  = Account

@@ -18,7 +18,7 @@ Dough is a replica of Quicken written w/ the MERN stack. The goal of the project
 ## User Stories
 
 ### Add a User
-I want to be able to create a user account that has my name, email, and mobile number.
+[x] I want to be able to create a user account that has my name, email, and mobile number.
 
 ### Add a Financial Account
 As a User, I want to be able to create a banking/credit card account so that I can track my finances.
