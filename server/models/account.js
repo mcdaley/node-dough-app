@@ -25,7 +25,15 @@ const accountSchema = new mongoose.Schema({
     type:       Number,
     min:        0,
     default:    0,
-  }
+  },
+  initialDate: {
+    type:       Date,
+    default:    new Date(),
+  },
+  userId: {
+    type:       mongoose.Schema.Types.ObjectId,
+    required:   true,
+  },
 })
 
 // Export Account model

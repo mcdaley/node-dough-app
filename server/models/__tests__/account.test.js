@@ -1,16 +1,22 @@
 //-----------------------------------------------------------------------------
 // server/models/__tests__/account.test.js
 //-----------------------------------------------------------------------------
-const expect    = require('chai').expect
-const mongoose  = require('../../db/mongoose')
+const mongoose      = require('../../db/mongoose')
+const expect        = require('chai').expect
+const { ObjectID }  = require('mongodb')
 
-const Account   = require('../account')
+const Account       = require('../account')
+const User          = require('../user')
 
 /**
  * Account Model Unit Tests
  */
 describe('Account', () => {
+
+  // Test account validation rules
   describe('Validation', () => {
+    const user = new User({_id: new ObjectID(), email: 'fergie@bills.com'})
+
     it('Requires a name', () => {
       let account = new Account()
 
@@ -38,11 +44,24 @@ describe('Account', () => {
       })
     })
 
+    it('Requires an account owner (i.e., userId)', () => {
+      let account = new Account({
+        name:           'My Checking', 
+        initialBalance: '100'
+      })
+
+      account.validate( (err) => {
+        expect(err.errors.userId).to.exist
+        expect(err.errors.userId.message).to.match(/\`userId\` is required/)
+      })
+    }) 
+
     it('Validates a correct account', () => {
       let account = new Account({
         name:           'My Checkiing', 
         type:           'Checking', 
-        initialBalance: 500.00
+        initialBalance: 500.00,
+        userId:         user._id,
       })
 
       account.validate( (err) => {
@@ -51,8 +70,17 @@ describe('Account', () => {
     })
   })
 
-  // Tests writing account to the DB
+  // Test saving account to DB
   describe('Save account to DB', () => {
+    
+    // Seed the database w/ a user
+    const users = [new User({_id: new ObjectID(), email: 'fergie@bills.com'})]
+    beforeEach( (done) => {
+      User.remove({}).then( () => {
+        return User.insertMany(users)
+      }).then( () => done())
+    })
+
     it('Fails to save an invalid account to the DB', (done) => {
       let badAccount = new Account()
 
@@ -68,7 +96,8 @@ describe('Account', () => {
       let account = new Account({ 
         name:           'My Checkiing', 
         type:           'Checking', 
-        initialBalance: 500.00
+        initialBalance: 500.00,
+        userId:         users[0]._id,
       })
 
       account.save( function(err) {
@@ -78,7 +107,10 @@ describe('Account', () => {
     })
 
     it('Saves valid account and sets the default values', (done) => {
-      let account = new Account({name: 'Test Checking'})
+      let account = new Account({
+        name:   'Test Checking',
+        userId: users[0]._id,
+      })
 
       account
         .save()
@@ -88,6 +120,7 @@ describe('Account', () => {
               expect(result.name).to.equal('Test Checking')
               expect(result.type).to.equal('Checking')
               expect(result.initialBalance).to.equal(0)
+              expect(result.userId.toHexString()).to.equal(users[0]._id.toHexString())
               done()
             })
             .catch( (err) => done(err))
@@ -100,6 +133,7 @@ describe('Account', () => {
         name:           'Test Savings',
         type:           'Savings',
         initialBalance: 1000,
+        userId:         users[0]._id,
       })
 
       account
