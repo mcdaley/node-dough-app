@@ -24,7 +24,8 @@
     "server": "nodemon index.js",
     "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
     "start": "node index.js",
-    "test": "mocha server/**/*.test.js"
+    "test": "mocha server/**/*.test.js",
+    "single-test": "mocha"
   },
   "author": "Michael Daley <mike@mcdaley.com> (https://www.mcdaley.com)",
   "license": "MIT"

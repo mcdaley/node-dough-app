@@ -76,7 +76,7 @@ describe('Account', () => {
     // Seed the database w/ a user
     const users = [new User({_id: new ObjectID(), email: 'fergie@bills.com'})]
     beforeEach( (done) => {
-      User.remove({}).then( () => {
+      User.deleteMany({}).then( () => {
         return User.insertMany(users)
       }).then( () => done())
     })
