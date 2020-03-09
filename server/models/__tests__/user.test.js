@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 // server/models/__tests__/user.test.js
 //-----------------------------------------------------------------------------
+const mongoose  = require('../../db/mongoose')
 const expect    = require('chai').expect
-const mongoose  = require('mongoose')
 
 const User      = require('../user')
 
@@ -31,21 +31,13 @@ describe('User', () => {
   })
 
   describe('Saves to DB', () => {
-    // Connect to DB before the tests
-    /**/
-    before( function(done) {
-      mongoose.connect(
-        process.env.MONGODB_URI,
-        { useNewUrlParser: true, useUnifiedTopology: true }
-      )
-      const db = mongoose.connection
-      db.on('error', console.error.bind(console, 'connection error'))
-      db.once('open', () => {
-        console.log(`[INFO] Connected to the test database`)
+    // Clear users from the DB    
+    beforeEach( (done) => {
+      User.deleteMany({}).then( () => {
+        //* console.log(`[DEBUG] Clean out the Users collection`)
         done()
       })
     })
-    /**/
 
     it('Fails to save an invalid user to DB', (done) => {
       let badUser = new User()
@@ -73,9 +65,9 @@ describe('User', () => {
         .save()
         .then( () => {
           User.findOne({email: 'marv@bills.com'})
-            .then( (marv) => {
-              expect(marv.email).to.equal('marv@bills.com')
-              expect(marv.phone).to.equal('716-649-1475')
+            .then( (result) => {
+              expect(result.email).to.equal(user.email)
+              expect(result.phone).to.equal(user.phone)
               done()
             })
             .catch( (err) => done(err) )
@@ -90,12 +82,10 @@ describe('User', () => {
         done()
       })
     })
-
-    // Disconnect and drop the database
-    after( function(done) {
-      mongoose.connection.db.dropDatabase( function() {
-        mongoose.connection.close(done)
-      })
-    })
   })
+})
+
+// Close the connection
+after( function(done) {
+  mongoose.connection.close(done)
 })

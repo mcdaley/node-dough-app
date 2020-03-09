@@ -153,10 +153,10 @@ describe('Account', () => {
         })
         .catch( (err) => done(err))
     })
+  
+    // Close the connection
+    after( function(done) {
+      mongoose.connection.close(done)
+    })
   })
-})
-
-// Close the connection
-after( function(done) {
-  mongoose.connection.close(done)
 })

@@ -26,7 +26,7 @@
     "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
     "start": "node index.js",
     "test": "export NODE_ENV=test; mocha server/**/*.test.js",
-    "single-test": "export NODE_ENV=development; mocha"
+    "single-test": "export NODE_ENV=test; mocha"
   },
   "author": "Michael Daley <mike@mcdaley.com> (https://www.mcdaley.com)",
   "license": "MIT"
