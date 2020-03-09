@@ -1,14 +1,17 @@
 //-----------------------------------------------------------------------------
 // server/db/mongoose.js
 //-----------------------------------------------------------------------------
+require('../config/config')
+
 const mongoose = require('mongoose')
 
 mongoose.promise = global.Promise
-
 mongoose.connect(
-  process.env.MONGODB_URI || `mongodb://localhost:27017/node-dough-app`,
-  {useNewUrlParser: true}
+  process.env.MONGODB_URI,
+  { useNewUrlParser: true, useUnifiedTopology: true }
 )
+
+console.log(`[INFO] Connected to DB = `, process.env.MONGODB_URI)
 
 // Export the mongoose 
 module.exports = mongoose

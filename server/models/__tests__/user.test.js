@@ -35,8 +35,8 @@ describe('User', () => {
     /**/
     before( function(done) {
       mongoose.connect(
-        `mongodb://localhost:27017/node-dough-app`,
-        {useNewUrlParser: true}
+        process.env.MONGODB_URI,
+        { useNewUrlParser: true, useUnifiedTopology: true }
       )
       const db = mongoose.connection
       db.on('error', console.error.bind(console, 'connection error'))
