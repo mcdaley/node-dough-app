@@ -75,14 +75,21 @@ describe('Account', () => {
     
     // Clear out the DB and seed the database w/ a user
     const users = [new User({_id: new ObjectID(), email: 'fergie@bills.com'})]
-    beforeEach( (done) => {
-      User.deleteMany({}).then( () => {
-        return User.insertMany(users)
-      }).then( () => {
-        //* console.log(`[DEBUG] Remove all account`)
-        Account.deleteMany({}).then( () => done())
-      })
+    
+    beforeEach( async function() {
+      await User.deleteMany({})
+      await User.insertMany(users)
+      await Account.deleteMany({})
     })
+
+    //* beforeEach( (done) => {
+    //*   User.deleteMany({}).then( () => {
+    //*     return User.insertMany(users)
+    //*   }).then( () => {
+    //*     //* console.log(`[DEBUG] Remove all account`)
+    //*     Account.deleteMany({}).then( () => done())
+    //*   })
+    //* })
 
     it('Fails to save an invalid account to the DB', (done) => {
       let badAccount = new Account()

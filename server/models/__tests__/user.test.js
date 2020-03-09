@@ -32,11 +32,8 @@ describe('User', () => {
 
   describe('Saves to DB', () => {
     // Clear users from the DB    
-    beforeEach( (done) => {
-      User.deleteMany({}).then( () => {
-        //* console.log(`[DEBUG] Clean out the Users collection`)
-        done()
-      })
+    beforeEach( async function() {
+      await User.deleteMany({})
     })
 
     it('Fails to save an invalid user to DB', (done) => {
