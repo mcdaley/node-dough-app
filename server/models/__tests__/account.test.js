@@ -8,6 +8,28 @@ const { ObjectID }  = require('mongodb')
 const Account       = require('../account')
 const User          = require('../user')
 
+/*
+ * Create accounts test data
+ */
+let usersData = [
+  { _id: new ObjectID(), email: 'fergie@bills.com', phone: '415-694-2910' },
+]
+
+let accountsData = [
+  { 
+    _id:            new ObjectID(), 
+    name:           "Fergie Checking Account", 
+    initialBalance: 500,
+    userId:         usersData[0]._id,
+  },
+  { 
+    _id:            new ObjectID(), 
+    name:           "Joe's Savings Account",   
+    type:           'Savings',
+    userId:         usersData[0]._id,
+  }
+]
+
 /**
  * Account Model Unit Tests
  */
@@ -70,7 +92,44 @@ describe('Account', () => {
     })
   })
 
-  // Test saving account to DB
+  //
+  // SELECT Account(s) Tests
+  //
+  describe('Query Accounts', () => {
+    beforeEach( async () => {
+      await User.deleteMany({})
+      await User.insertMany(usersData)
+      await Account.deleteMany({})
+      await Account.insertMany(accountsData)
+    })
+
+    describe('Select single account', () => {
+      it('Returns the account', async () => {
+        let account = await Account.findById(accountsData[0]._id)
+        expect(account.name).to.equal(accountsData[0].name)
+        expect(account.initialBalance).to.equal(500)
+        expect(account.userId.toHexString()).to.equal(usersData[0]._id.toHexString())
+      })
+
+      it('Returns an error for an invalid account id', async () => {
+        try {
+          let account = await Account.findById('abcd')
+        }
+        catch(err) {
+          expect(err).to.exist
+        }
+      })
+
+      it('Returns null for an id that is not found', async () => {
+        let account = await Account.findById(new ObjectID().toHexString())
+        expect(account).to.equal(null)
+      })
+    })
+  })
+
+  //
+  // SAVE Account Tests
+  //
   describe('Save account to DB', () => {
     
     // Clear out the DB and seed the database w/ a user
@@ -81,15 +140,6 @@ describe('Account', () => {
       await User.insertMany(users)
       await Account.deleteMany({})
     })
-
-    //* beforeEach( (done) => {
-    //*   User.deleteMany({}).then( () => {
-    //*     return User.insertMany(users)
-    //*   }).then( () => {
-    //*     //* console.log(`[DEBUG] Remove all account`)
-    //*     Account.deleteMany({}).then( () => done())
-    //*   })
-    //* })
 
     it('Fails to save an invalid account to the DB', (done) => {
       let badAccount = new Account()
@@ -159,6 +209,105 @@ describe('Account', () => {
             .catch( (err) => done(err))
         })
         .catch( (err) => done(err))
+    })
+  })
+
+  //
+  // UPDATE Account Tests
+  //
+  describe('Update account', () => {
+    
+    beforeEach( async () => {
+      await User.deleteMany({})
+      await User.insertMany(usersData)
+      await Account.deleteMany({})
+      await Account.insertMany(accountsData)
+    })
+
+    it('Finds account by id and updates it', async () => {
+      let query   = { _id: accountsData[0]._id }
+      let update  = { name: 'Update Account Test', initialBalance: 25.0 }
+      let options = { new: true }
+
+      let result  = await Account.findOneAndUpdate(query, update, options)
+
+      expect(result.name).to.equal(update.name)
+      expect(result.initialBalance).to.equal(update.initialBalance)
+    })
+
+    it('Returns null for account id that is not found', async () => {
+      let query   = { _id: new ObjectID().toHexString() }
+      let update  = { name: 'Update Test Account' }
+      let options = { new: true }
+
+      let result  = await Account.findOneAndUpdate(query, update, options)
+      expect(result).to.equal(null)
+    })
+
+    it('Returns an error for an invalid account id', async () => {
+      let query   = { _id: 'invalid-id' }
+      let update  = { name: 'Update Test Account' }
+      let options = { new: true }
+
+      try {
+        let result  = await Account.findOneAndUpdate(query, update, options)
+      }
+      catch( err ) {
+        expect(err).to.exist
+      }
+    })
+
+    it('Returns an error for an invalid account type', async () => {
+      let query   = { _id: accountsData[0]._id }
+      let update  = { type: 'INVALID ACCOUNT TYPE' }
+      let options = { new: true, runValidators: true }
+
+      try {
+        let result  = await Account.findOneAndUpdate(query, update, options)
+      }
+      catch( err ) {
+        expect(err).to.exist
+      }
+    })
+  })
+
+  //
+  // DELETE Account Tests
+  //
+  describe('Delete Account', () => {
+    beforeEach( async () => {
+      await User.deleteMany({})
+      await User.insertMany(usersData)
+      await Account.deleteMany({})
+      await Account.insertMany(accountsData)
+    })
+
+    it('Deletes an account', async () => {
+      let id  = accountsData[0]._id
+
+      let result  = await Account.findByIdAndRemove(id)
+      let query   = await Account.findById(id)
+
+      expect(query).to.equal(null)
+      expect(result.name).to.equal(accountsData[0].name)
+      expect(result.initialBalance).to.equal(accountsData[0].initialBalance)
+    })
+
+    it('Returns null if the ID is not found', async () => {
+      let id     = new ObjectID().toHexString()
+      let result = await Account.findByIdAndRemove(id)
+
+      expect(result).to.equal(null)
+    })
+
+    it('Returns an arror for an invalid id', async () => {
+      try {
+        let id      = 'invalid-account-id'
+        let result  = await Account.findByIdAndRemove(id)
+      }
+      catch(err) {
+        expect(err).to.exist
+      }
     })
   })
 })

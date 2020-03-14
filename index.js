@@ -23,3 +23,6 @@ const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`[INFO] node-dough-app running on ${PORT}`)
 })
+
+// Export the app
+module.exports = { app }
