@@ -34,7 +34,42 @@ const authenticateUser = () => {
 const router  = express.Router()
 
 /*
- * POST /api/v1/transactions
+ * GET /api/v1/accounts/:accountId/transactions
+ */
+router.get('/v1/accounts/:accountId/transactions', async (req, res) => {
+  logger.info('GET /api/v1/accounts/:id/transactions/:id, params= %o', req.params)
+  
+  let accountId = req.params.accountId
+  
+  if(!ObjectID.isValid(accountId)) {
+    logger.error('Invalid account id=[%s]', accountId)
+    return res.status(404).send({
+      code:     404,
+      message:  'Account not found',
+    })
+  }
+
+  try {
+    let user          = await authenticateUser()
+    let transactions  = await Transaction.find({accountId: accountId})
+
+    logger.debug(
+      'Retrieved [%d] transactions for accountId=[%s], %o', 
+      transactions.length, accountId, transactions
+    )
+    res.status(200).send({transactions})
+  }
+  catch(err) {
+    logger.error(
+      'Failed to retrieve transactions for accountId=[%s], error= %o', 
+      accountId, err
+    )
+    res.status(400).send(err)
+  }
+})
+
+/*
+ * POST /api/v1/accounts/:accountId/transactions
  */
 router.post('/v1/accounts/:accountId/transactions', async (req, res) => {
   logger.info('POST /api/v1/transactions, params= %o, body= %o', req.params, req.body)

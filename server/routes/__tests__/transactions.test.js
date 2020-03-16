@@ -76,7 +76,35 @@ describe('Transactions API', () => {
     }
   })
   
+  /*
+   * GET /api/v1/accounts/:accountId/transactions
+   */
+  describe('GET /api/v1/accounts/:accountId/transactions', () => {
+    it('Returns 404 for an invalid account ID', (done) => {
+      let invalidAccountId = 'bad-account-id'
 
+      request(app)
+        .get(`/api/v1/accounts/${invalidAccountId}/transactions`)
+        .expect(404)
+        .end(done)
+    })
+
+    it('Returns all transactions for an account', (done) => {
+      let accountId = accountsData[0]._id.toHexString()
+
+      request(app)
+        .get(`/api/v1/accounts/${accountId}/transactions`)
+        .expect(200)
+        .expect( (res) => {
+          expect(res.body.transactions.length).to.equal(3)
+        })
+        .end(done)
+    })
+  })
+
+  /*
+   * POST /api/v1/accounts/:accountId/transactions
+   */
   describe('POST /api/v1/transactions', () => {
     const accountId   = accountsData[0]._id.toHexString()
     let   transaction = null
