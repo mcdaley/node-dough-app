@@ -36,7 +36,7 @@ let accountsData = [
 describe('Account', () => {
 
   // Test account validation rules
-  describe('Validation', () => {
+  describe('Validation rules', () => {
     const user = new User({_id: new ObjectID(), email: 'fergie@bills.com'})
 
     it('Requires a name', () => {
