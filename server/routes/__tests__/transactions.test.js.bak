@@ -78,14 +78,14 @@ describe('Transactions API', () => {
   
 
   describe('POST /api/v1/transactions', () => {
-    const accountId   = accountsData[0]._id.toHexString()
-    let   transaction = null
+    let transaction = null
     
     beforeEach( () => {
       transaction = {
         _id:          new ObjectID().toHexString(),
         description:  'Test Transaction',
         amount:       40.25,
+        accountId:    accountsData[0]._id.toHexString(),
         userId:       accountsData[0].userId.toHexString(),
       }
     })
@@ -93,9 +93,9 @@ describe('Transactions API', () => {
     it('Returns a 400 error if the description is not defined', (done) =>{
       // Remove description from the transaction
       delete transaction.description
-      
+
       request(app)
-        .post(`/api/v1/accounts/${accountId}/transactions`)
+        .post('/api/v1/transactions')
         .send(transaction)
         .expect(400)
         .end(done)
@@ -106,23 +106,33 @@ describe('Transactions API', () => {
       delete transaction.userId
 
       request(app)
-        .post('/api/v1/accounts/${accountId}/transactions')
+        .post('/api/v1/transactions')
         .send(transaction)
         .expect(400)
         .end(done)
     })
 
-    /**/
+    it('Returns a 400 error if the accountId is not defined', (done) =>{
+      // Remove accountId from the transaction
+      delete transaction.accountId
+
+      request(app)
+        .post('/api/v1/transactions')
+        .send(transaction)
+        .expect(400)
+        .end(done)
+    })
+
     it('Creates a transaction', (done) => {
       
       request(app)
-        .post(`/api/v1/accounts/${accountId}/transactions`)
+        .post('/api/v1/transactions')
         .send(transaction)
         .expect(201)
         .expect( (res) => {
           expect(res.body.description).to.equal(transaction.description)
           expect(res.body.amount).to.equal(transaction.amount)
-          expect(res.body.accountId).to.equal(accountId)
+          expect(res.body.accountId).to.equal(transaction.accountId)
           expect(res.body.userId).to.equal(transaction.userId)
         })
         .end( (err, res) => {
@@ -133,18 +143,17 @@ describe('Transactions API', () => {
           Transaction
             .findOne({
               description:  transaction.description, 
-              accountId:    accountId
+              accountId:    transaction.accountId
             })
             .then( (result) => {
               expect(result.description).to.equal(transaction.description)
               expect(result.amount).to.equal(result.amount)
-              expect(result.accountId.toHexString()).to.equal(accountId)
+              expect(result.accountId.toHexString()).to.equal(transaction.accountId)
               expect(result.userId.toHexString()).to.equal(transaction.userId)
               done()
             })
             .catch( (err) => done(err) )
         })
     })
-    /**/
   })
 })

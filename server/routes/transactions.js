@@ -36,8 +36,8 @@ const router  = express.Router()
 /*
  * POST /api/v1/transactions
  */
-router.post('/v1/transactions', async (req, res) => {
-  logger.info('POST /api/v1/transactions, req.body= %o', req.body)
+router.post('/v1/accounts/:accountId/transactions', async (req, res) => {
+  logger.info('POST /api/v1/transactions, params= %o, body= %o', req.params, req.body)
 
   try {
     let user    = await authenticateUser()
@@ -47,7 +47,7 @@ router.post('/v1/transactions', async (req, res) => {
       amount:       req.body.amount || 0,
       date:         req.body.date || new Date(),
       userId:       req.body.userId,
-      accountId:    req.body.accountId
+      accountId:    req.params.accountId
     })
     logger.debug('Built transaction= %o', transaction)
 

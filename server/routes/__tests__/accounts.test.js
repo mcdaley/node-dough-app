@@ -44,7 +44,7 @@ beforeEach( async () => {
   }
 })
 
-describe('Accounts', () => {
+describe('Accounts API', () => {
   /*
    * GET /api/v1/accounts
    */
