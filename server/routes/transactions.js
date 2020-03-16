@@ -137,7 +137,10 @@ router.get('/v1/accounts/:accountId/transactions', async (req, res) => {
  * POST /api/v1/accounts/:accountId/transactions
  */
 router.post('/v1/accounts/:accountId/transactions', async (req, res) => {
-  logger.info('POST /api/v1/transactions, params= %o, body= %o', req.params, req.body)
+  logger.info(
+    'POST /api/v1/accounts/:accountId/transactions, params= %o, body= %o', 
+    req.params, req.body
+  )
 
   try {
     let user    = await authenticateUser()
@@ -158,6 +161,71 @@ router.post('/v1/accounts/:accountId/transactions', async (req, res) => {
   }
   catch(err) {
     logger.error('Failed to save transaction, err= %o', err)
+    res.status(400).send(err)
+  }
+})
+
+/*
+ * DELETE /api/v1/accounts/:accountId/transactions/:id
+ */
+router.delete('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
+  logger.info(
+    'DELETE /api/v1/accounts/:accountId/transactions, params= %o, body= %o', 
+    req.params, req.body
+  )
+
+  let accountId     = req.params.accountId
+  let transactionId = req.params.id
+
+  // Verify accountId is a valid ObjectID
+  if(!ObjectID.isValid(accountId)) {
+    logger.error('Invalid account id=[%s]', accountId)
+    return res.status(404).send({
+      code:     404,
+      message:  'Account not found',
+    })
+  }
+
+  // Verify transactionId is a valid ObjectID
+  if(!ObjectID.isValid(transactionId)) {
+    logger.error('Invalid transaction id=[%s]', transactionId)
+    return res.status(404).send({
+      code:     404,
+      message:  'Transaction not found',
+    })
+  }
+
+  // Delete the transaction
+  try {
+    let user        = await authenticateUser()
+    let transaction = await Transaction.findOneAndDelete({
+      _id:        transactionId,
+      accountId:  accountId
+    })
+
+    // Transaction does not exist in DB
+    if(transaction == null) {
+      logger.error(
+        'Failed to delete transaction id=[%s] for account id=[%s], transaction= %o', 
+        transactionId, accountId, transaction
+      )
+      return res.status(404).send({
+        code:     404,
+        message:  'Transaction not found'
+      })
+    }
+
+    logger.info(
+      'Deleted transaction id=[%s] for account id=[%s]', 
+      transactionId, accountId
+    )
+    res.status(200).send({transaction})
+  }
+  catch(err) {
+    logger.error(
+      'Failed to delete transaction=[%s] for account=[%s], error= %o', 
+      transactionId, accountId, err
+    )
     res.status(400).send(err)
   }
 })

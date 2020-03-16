@@ -57,6 +57,9 @@ let transactionsData = [
   },
 ]
 
+/*
+ * Transactions API Tests
+ */
 describe('Transactions API', () => {
 
   // Seed the test data
@@ -80,7 +83,7 @@ describe('Transactions API', () => {
    * GET /api/v1/accounts/:accountId/transactions/:id
    */
   describe('GET /api/v1/accounts/:accountId/transactions/:id', () => {
-    it('Returns 404 for an invalid account ID', (done) => {
+    it('Returns 404 for an invalid account Id', (done) => {
       let invalidAccountId  = 'bad-account-id'
       let transactionId     = transactionsData[1]._id.toHexString()
 
@@ -90,7 +93,7 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Returns 404 for missing account Id', (done) => {
+    it('Returns 404 for account Id not in the DB', (done) => {
       let missingAccountId  = new ObjectID().toHexString()
       let transactionId     = transactionsData[1]._id.toHexString()
 
@@ -166,7 +169,7 @@ describe('Transactions API', () => {
   /*
    * POST /api/v1/accounts/:accountId/transactions
    */
-  describe('POST /api/v1/transactions', () => {
+  describe('POST /api/v1/accounts/:accountId/transactions', () => {
     const accountId   = accountsData[0]._id.toHexString()
     let   transaction = null
     
@@ -201,7 +204,6 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    /**/
     it('Creates a transaction', (done) => {
       
       request(app)
@@ -234,6 +236,77 @@ describe('Transactions API', () => {
             .catch( (err) => done(err) )
         })
     })
-    /**/
+  })
+
+  /*
+   * DELETE /api/v1/accounts/:accountId/transactions/:id
+   */
+  describe('DELETE /api/v1/accounts/:accountId/transactions/:id', () => {
+    it('Returns 404 for an invalid account Id', (done) => {
+      let invalidAccountId  = 'bad-account-id'
+      let transactionId     = transactionsData[1]._id.toHexString()
+
+      request(app)
+        .delete(`/api/v1/accounts/${invalidAccountId}/transactions/${transactionId}`)
+        .expect(404)
+        .end(done)
+    })
+
+    it('Returns 404 for account Id not in the DB', (done) => {
+      let missingAccountId  = new ObjectID().toHexString()
+      let transactionId     = transactionsData[1]._id.toHexString()
+
+      request(app)
+        .delete(`/api/v1/accounts/${missingAccountId}/transactions/${transactionId}`)
+        .expect(404)
+        .end(done)
+    })
+
+    it('Returns 404 for an invalid transaction Id', (done) => {
+      let accountId     = accountsData[0]._id.toHexString()
+      let invalidTxnId  = 'invalid-txn-id'
+
+      request(app)
+        .delete(`/api/v1/accounts/${accountId}/transactions/${invalidTxnId}`)
+        .expect(404)
+        .end(done)
+    })
+
+    it('Returns 404 for transaction that is not in DB', (done) => {
+      let accountId = accountsData[0]._id.toHexString()
+      let txnId     = new ObjectID().toHexString()
+
+      request(app)
+        .delete(`/api/v1/accounts/${accountId}/transactions/${txnId}`)
+        .expect(404)
+        .end(done)
+    })
+
+    it('Deletes a transaction', (done) => {
+      let accountId = accountsData[0]._id.toHexString()
+      let txnId     = transactionsData[1]._id.toHexString()
+
+      request(app)
+        .delete(`/api/v1/accounts/${accountId}/transactions/${txnId}`)
+        .expect(200)
+        .expect( (res) => {
+          let txn = res.body.transaction
+          expect(txn.description).to.equal(transactionsData[1].description)
+          expect(txn.userId).to.equal(transactionsData[1].userId.toHexString())
+          expect(txn.accountId).to.equal(transactionsData[1].accountId.toHexString())
+        })
+        .end( (err, res) => {
+          if(err) { return done(err) }
+
+          //* console.log(`[DEBUG] res.body= `, JSON.stringify(res.body, undefined, 2))
+          Transaction
+            .findById(res.body.transaction._id)
+            .then( (result) => {
+              expect(result).to.equal(null)
+              done()
+            })
+            .catch( (err) => done )
+        })
+    })
   })
 })
