@@ -34,10 +34,75 @@ const authenticateUser = () => {
 const router  = express.Router()
 
 /*
+ * GET /v1/accounts/:accountId/transactions/:id
+ */
+router.get('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
+  logger.info(
+    'GET /api/v1/accounts/:id/transactions/:id, params= %o', req.params
+  )
+
+  let accountId     = req.params.accountId
+  let transactionId = req.params.id
+
+  // Verify accountId is a valid ObjectID
+  if(!ObjectID.isValid(accountId)) {
+    logger.error('Invalid account id=[%s]', accountId)
+    return res.status(404).send({
+      code:     404,
+      message:  'Account not found',
+    })
+  }
+
+  // Verify transactionId is a valid ObjectID
+  if(!ObjectID.isValid(transactionId)) {
+    logger.error('Invalid transaction id=[%s]', transactionId)
+    return res.status(404).send({
+      code:     404,
+      message:  'Transaction not found',
+    })
+  }
+
+  try {
+    let user        = await authenticateUser()
+    let transaction = await Transaction.findOne({
+      _id:        transactionId,
+      accountId:  accountId,
+    })
+
+    // Return 404 if transaction is not found.
+    if(transaction == null) {
+      logger.error(
+        'Failed to find transaction id=[%s] w/ account id=[%s]',
+        transactionId, accountId
+      )
+      return res.status(404).send({
+        code:     404,
+        message:  'Transaction not found',
+      })
+    }
+
+    logger.info(
+      'Retrieved transaction w/ account id=[%s], transaction= %o',
+      accountId, transaction
+    )
+    res.status(200).send({transaction})
+  }
+  catch(err) {
+    logger.error(
+      'Failed to retrieve transaction id=[%s] for account id=[%s], error= %o',
+      transactionId, accountId, err
+    )
+    res.status(400).send(err)
+  }
+})
+
+/*
  * GET /api/v1/accounts/:accountId/transactions
  */
 router.get('/v1/accounts/:accountId/transactions', async (req, res) => {
-  logger.info('GET /api/v1/accounts/:id/transactions/:id, params= %o', req.params)
+  logger.info(
+    'GET /api/v1/accounts/:accountId/transactions, params= %o', req.params
+  )
   
   let accountId = req.params.accountId
   

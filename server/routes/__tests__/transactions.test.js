@@ -77,6 +77,67 @@ describe('Transactions API', () => {
   })
   
   /*
+   * GET /api/v1/accounts/:accountId/transactions/:id
+   */
+  describe('GET /api/v1/accounts/:accountId/transactions/:id', () => {
+    it('Returns 404 for an invalid account ID', (done) => {
+      let invalidAccountId  = 'bad-account-id'
+      let transactionId     = transactionsData[1]._id.toHexString()
+
+      request(app)
+        .get(`/api/v1/accounts/${invalidAccountId}/transactions/${transactionId}`)
+        .expect(404)
+        .end(done)
+    })
+
+    it('Returns 404 for missing account Id', (done) => {
+      let missingAccountId  = new ObjectID().toHexString()
+      let transactionId     = transactionsData[1]._id.toHexString()
+
+      request(app)
+        .get(`/api/v1/accounts/${missingAccountId}/transactions/${transactionId}`)
+        .expect(404)
+        .end(done)
+    })
+
+    it('Returns 404 for an invalid transaction Id', (done) => {
+      let accountId     = accountsData[0]._id.toHexString()
+      let invalidTxnId  = 'invalid-txn-id'
+
+      request(app)
+        .get(`/api/v1/accounts/${accountId}/transactions/${invalidTxnId}`)
+        .expect(404)
+        .end(done)
+    })
+
+    it('Returns 404 for transaction that is not in DB', (done) => {
+      let accountId = accountsData[0]._id.toHexString()
+      let txnId     = new ObjectID().toHexString()
+
+      request(app)
+        .get(`/api/v1/accounts/${accountId}/transactions/${txnId}`)
+        .expect(404)
+        .end(done)
+    })
+
+    it('Returns the transaction', (done) => {
+      let accountId = accountsData[0]._id.toHexString()
+      let txnId     = transactionsData[1]._id.toHexString()
+
+      request(app)
+        .get(`/api/v1/accounts/${accountId}/transactions/${txnId}`)
+        .expect(200)
+        .expect( (res) => {
+          let {transaction} = res.body
+          expect(transaction.description).to.equal(transactionsData[1].description)
+          expect(transaction.accountId).to.equal(transactionsData[1].accountId.toHexString())
+          expect(transaction.userId).to.equal(usersData[0]._id.toHexString())
+        })
+        .end(done)
+    })
+  })
+
+  /*
    * GET /api/v1/accounts/:accountId/transactions
    */
   describe('GET /api/v1/accounts/:accountId/transactions', () => {
