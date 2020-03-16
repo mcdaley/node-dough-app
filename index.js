@@ -3,22 +3,23 @@
 //-----------------------------------------------------------------------------
 require('./server/config/config')
 
-const express     = require('express')
-const bodyParser  = require('body-parser')
+const express       = require('express')
+const bodyParser    = require('body-parser')
 
-const mongoose    = require('./server/db/mongoose')
-const logger      = require('./server/config/winston')
-const accounts    = require('./server/routes/accounts')
+const mongoose      = require('./server/db/mongoose')
+const logger        = require('./server/config/winston')
+const accounts      = require('./server/routes/accounts')
+const transactions  = require('./server/routes/transactions')
 
 /*
  * main()
  */
 const app = express()
 
-
 app.use(bodyParser.json())
 
 app.use('/api', accounts)
+app.use('/api', transactions)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
