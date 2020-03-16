@@ -38,9 +38,6 @@ beforeEach( async () => {
 
     await Account.deleteMany({})
     let results = await Account.insertMany(accountsData)
-
-    //* console.log(`[DEBUG] Loaded accounts into the DB`)
-    //* console.log(JSON.stringify(results, undefined, 2))
   }
   catch(err) {
     console.log(`[ERROR] Failed to create account test data, err= `, err)
@@ -115,8 +112,6 @@ describe('Accounts', () => {
         .send(account)
         .expect(200)
         .expect( (res) => {
-          //* console.log(`[DEBUG] Post response`)
-          //* console.log(JSON.stringify(res.body, undefined, 2))
           expect(res.body.name).to.equal(account.name)
         })
         .end( (err, res) => {

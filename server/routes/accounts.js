@@ -6,6 +6,7 @@ const { ObjectID }  = require('mongodb')
 
 const User          = require('../models/user')
 const Account       = require('../models/account')
+const logger        = require('../config/winston')
 
 /**
  * Temporary method to simulate authenticating a user, which requires that the
@@ -21,7 +22,9 @@ const authenticateUser = () => {
         resolve(user)  
       })
       .catch( (err) => {
-        console.log(`[ERROR] Failed to get user w/ email = fergie@bills.com`, err)
+        logger.error(
+          `Failed to get user w/ email=[fergie@bills.com], err= %o`, err
+        )
         reject(err)  
       })
   })
@@ -33,19 +36,19 @@ const router  = express.Router()
  * GET /v1/accounts
  */ 
 router.get('/v1/accounts', async (req, res) => {
-  console.log(`[INFO] GET /api/v1/accounts`)
+  logger.info(`GET /api/v1/accounts`)
 
   try {
     let user      = await authenticateUser()
     let accounts  = await Account.find({userId: user._id})
 
-    //* console.log(`[INFO] Retrieved accounts for user= `, user._id)
-    //* console.log(JSON.stringify(accounts, undefined, 2))
+    logger.info('Retrieved accounts for user= %s', user._id)
+    logger.debug('Accounts= %o', accounts)
 
     res.status(200).send({accounts})
   }
   catch(err) {
-    console.log(`[ERROR] Failed to find accounts for user=[${user._id}], err= `, err)
+    logger.error(`Failed to find accounts for user=[${user._id}], err= %o`, err)
     res.status(404).send(err)
   }
 })
@@ -54,9 +57,11 @@ router.get('/v1/accounts', async (req, res) => {
  * GET /v1/accounts/:id
  */
 router.get('/v1/accounts/:id', async (req, res) => {
+  logger.info('GET /api/v1/accounts/%s', req.params.id)
   const id = req.params.id
 
   if(!ObjectID.isValid(id)) { 
+    logger.error('Invalid Account Id=[%s]', id)
     return res.status(404).send({error: {code: 404, msg: 'Account not found'}}) 
   }
 
@@ -65,14 +70,15 @@ router.get('/v1/accounts/:id', async (req, res) => {
     let account = await Account.findById(id)
 
     if(account == null) {
+      logger.error('Account not found for id=[%s]', id)
       return res.status(404).send( {error: {code: 404, msg: 'Account not found'}} )
     }
 
-    console.log(`[INFO] Account for id=[${id}], account= `, account)
+    logger.info('Account for userId=[%s], account=[%s]', id, account)
     res.status(200).send({account})
   }
   catch(err) {
-    console.log(`[ERROR] Failed to find account w/ id=[${id}], err= `, err)
+    logger.error('Failed to find account w/ userId=[%s], err=[%o]',id, err)
     res.status(400).send(err)
   }
 })
@@ -81,7 +87,8 @@ router.get('/v1/accounts/:id', async (req, res) => {
  * POST /v1/accounts
  */
 router.post('/v1/accounts', async (req, res) => {
-  console.log(`[INFO] POST/api/v1/accounts, request body= `, req.body)
+  logger.info('POST/api/v1/accounts, request body= %o', req.body)
+
   try {
     let user    = await authenticateUser()    // Simulate authentication
     let account = new Account({
@@ -92,13 +99,12 @@ router.post('/v1/accounts', async (req, res) => {
     })
     let doc     = await account.save()
     
-    //* console.log(`[INFO] Successfully created account= `, account)
-    //* console.log(JSON.stringify(doc, undefined, 2))
+    logger.debug('Successfully created account=[%o]`', doc)
 
     res.status(200).send(doc)
   }
   catch(err) {
-    console.log(`[ERROR] Failed to create new account, err`, err)
+    logger.error('Failed to create account, err= %o', err)
     res.send(err)
   }
 })
@@ -107,7 +113,7 @@ router.post('/v1/accounts', async (req, res) => {
  * PUT /v1/accounts/:id
  */
 router.put('/v1/accounts/:id', async (req, res) => {
-  console.log(`[INFO] PUT /api/v1/account/:id, request body= `, req.body)
+  logger.info('/api/v1/account/%s, request body= %o', req.params.id, req.body)
   
   let id = req.params.id
   try {
@@ -120,17 +126,18 @@ router.put('/v1/accounts/:id', async (req, res) => {
     let doc     = await Account.findOneAndUpdate(query, update, options)
     
     if(doc == null) {
+      logger.warn('Failed to find account w/ id=[%s]', id)
       return res.status(404).send({
         code: 404,
         msg:  'Account not found'
       })
     }
 
-    console.log(`[INFO] Updated account [${id}]= `, doc)
+    logger.info('Updated account w/ id=[%s], doc=[%o]', id, doc)
     res.status(200).send(doc)
   }
   catch(err) {
-    console.log(`[ERROR] Failed to update account [${id}], err`, err)
+    logger.error('Failed to update account w/ id=[%s], err= %o', id, err)
     res.status(400).send(err)
   }
 })
@@ -139,7 +146,7 @@ router.put('/v1/accounts/:id', async (req, res) => {
  * DELETE /api/v1/accounts/:id
  */
 router.delete('/v1/accounts/:id', async (req, res) => {
-  console.log(`[INFO] PUT /api/v1/account/:id, request body= `, req.body)
+  logger.info('PUT /api/v1/account/%s, request= %o', req.params.id, req.body)
   
   let id = req.params.id
 
@@ -148,17 +155,18 @@ router.delete('/v1/accounts/:id', async (req, res) => {
     let doc   = await Account.findByIdAndRemove(id)
 
     if(doc == null) {
+      logger.warn('Failed to find account w/ id=[%s]', id)
       return res.status(404).send({
         code: 404,
         msg:  'Account not found'
       })
     }
 
-    console.log(`[INFO] Account [${id}]= `, doc)
+    logger.info('Deleted Account w/ id=[%s], doc= %o`', id, doc)
     res.status(200).send(doc)
   }
   catch(err) {
-    console.log(`[ERROR] Failed to delete the account, err= `, err)
+    logger.error('Failed to delete the account w/ id=[%s], err= %o', id, err)
     res.status(400).send(err)
   }
 })

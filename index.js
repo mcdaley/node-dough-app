@@ -7,6 +7,7 @@ const express     = require('express')
 const bodyParser  = require('body-parser')
 
 const mongoose    = require('./server/db/mongoose')
+const logger      = require('./server/config/winston')
 const accounts    = require('./server/routes/accounts')
 
 /*
@@ -21,7 +22,7 @@ app.use('/api', accounts)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-  console.log(`[INFO] node-dough-app running on ${PORT}`)
+  logger.info(`node-dough-app running on ${PORT}`)
 })
 
 // Export the app

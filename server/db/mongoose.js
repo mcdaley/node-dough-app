@@ -4,6 +4,7 @@
 require('../config/config')
 
 const mongoose = require('mongoose')
+const logger   = require('../config/winston')
 
 mongoose.promise = global.Promise
 mongoose.set('useFindAndModify', false);
@@ -13,7 +14,7 @@ mongoose.connect(
   { useNewUrlParser: true, useUnifiedTopology: true }
 )
 
-console.log(`[INFO] Connected to DB = `, process.env.MONGODB_URI)
+logger.info(`Connected to DB = ${process.env.MONGODB_URI}`)
 
 // Export the mongoose 
 module.exports = mongoose
