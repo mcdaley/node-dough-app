@@ -4,32 +4,12 @@
 const express       = require('express')
 const { ObjectID }  = require('mongodb')
 
-const Transaction   = require('../models/transaction')
-const User          = require('../models/user')
-const Account       = require('../models/account')
-const logger        = require('../config/winston')
+const Transaction     = require('../models/transaction')
+const User            = require('../models/user')
+const Account         = require('../models/account')
+const logger          = require('../config/winston')
+const { currentUser } = require('../utils/current-user-helper')
 
-/**
- * Temporary method to simulate authenticating a user, which requires that the
- * user w/ email 'fergie@bills.com' is in the development system.
- * 
- * @returns Promise w/ the authenticated user, 'fergie@bills.com'
- */
-const authenticateUser = () => {
-  return new Promise( (resolve, reject) => {
-    User.findOne({email: 'fergie@bills.com'})
-      .then( (user) => {
-        //* console.log(`[DEBUG] Authenticated user= `, user) 
-        resolve(user)  
-      })
-      .catch( (err) => {
-        logger.error(
-          `Failed to get user w/ email=[fergie@bills.com], err= %o`, err
-        )
-        reject(err)  
-      })
-  })
-}
 
 const router  = express.Router()
 
@@ -63,7 +43,7 @@ router.get('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
   }
 
   try {
-    let user        = await authenticateUser()
+    let user        = await currentUser()
     let transaction = await Transaction.findOne({
       _id:        transactionId,
       accountId:  accountId,
@@ -115,7 +95,7 @@ router.get('/v1/accounts/:accountId/transactions', async (req, res) => {
   }
 
   try {
-    let user          = await authenticateUser()
+    let user          = await currentUser()
     let transactions  = await Transaction.find({accountId: accountId})
 
     logger.debug(
@@ -143,7 +123,7 @@ router.post('/v1/accounts/:accountId/transactions', async (req, res) => {
   )
 
   try {
-    let user    = await authenticateUser()
+    let user    = await currentUser()
 
     let transaction = new Transaction({
       description:  req.body.description,
@@ -197,7 +177,7 @@ router.delete('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
 
   // Delete the transaction
   try {
-    let user        = await authenticateUser()
+    let user        = await currentUser()
     let transaction = await Transaction.findOneAndDelete({
       _id:        transactionId,
       accountId:  accountId

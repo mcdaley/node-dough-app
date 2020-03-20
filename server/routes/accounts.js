@@ -1,34 +1,13 @@
 //-----------------------------------------------------------------------------
 // server/routes/accounts.js
 //-----------------------------------------------------------------------------
-const express       = require('express')
-const { ObjectID }  = require('mongodb')
+const express         = require('express')
+const { ObjectID }    = require('mongodb')
 
-const User          = require('../models/user')
-const Account       = require('../models/account')
-const logger        = require('../config/winston')
+const Account         = require('../models/account')
+const logger          = require('../config/winston')
+const { currentUser } = require('../utils/current-user-helper')
 
-/**
- * Temporary method to simulate authenticating a user, which requires that the
- * user w/ email 'fergie@bills.com' is in the development system.
- * 
- * @returns Promise w/ the authenticated user, 'fergie@bills.com'
- */
-const authenticateUser = () => {
-  return new Promise( (resolve, reject) => {
-    User.findOne({email: 'fergie@bills.com'})
-      .then( (user) => {
-        //* console.log(`[DEBUG] Authenticated user= `, user) 
-        resolve(user)  
-      })
-      .catch( (err) => {
-        logger.error(
-          `Failed to get user w/ email=[fergie@bills.com], err= %o`, err
-        )
-        reject(err)  
-      })
-  })
-}
 
 const router  = express.Router()
 
@@ -39,7 +18,7 @@ router.get('/v1/accounts', async (req, res) => {
   logger.info(`GET /api/v1/accounts`)
 
   try {
-    let user      = await authenticateUser()
+    let user      = await currentUser()
     let accounts  = await Account.find({userId: user._id})
 
     logger.info('Retrieved accounts for user= %s', user._id)
@@ -66,7 +45,7 @@ router.get('/v1/accounts/:id', async (req, res) => {
   }
 
   try {
-    let user    = await authenticateUser()
+    let user    = await currentUser()
     let account = await Account.findById(id)
 
     if(account == null) {
@@ -90,7 +69,7 @@ router.post('/v1/accounts', async (req, res) => {
   logger.info('POST/api/v1/accounts, request body= %o', req.body)
 
   try {
-    let user    = await authenticateUser()    // Simulate authentication
+    let user    = await currentUser()    // Simulate authentication
     let account = new Account({
       name:           req.body.name,
       userId:         user._id,
@@ -117,7 +96,7 @@ router.put('/v1/accounts/:id', async (req, res) => {
   
   let id = req.params.id
   try {
-    let user    = await authenticateUser()    // Simulate authentication
+    let user    = await currentUser()    // Simulate authentication
 
     let query   = { _id:  id }
     let update  = req.body
@@ -151,7 +130,7 @@ router.delete('/v1/accounts/:id', async (req, res) => {
   let id = req.params.id
 
   try {
-    let user  = await authenticateUser()
+    let user  = await currentUser()
     let doc   = await Account.findByIdAndRemove(id)
 
     if(doc == null) {
