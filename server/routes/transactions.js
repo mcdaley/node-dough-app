@@ -5,12 +5,10 @@ const express       = require('express')
 const { ObjectID }  = require('mongodb')
 
 const Transaction     = require('../models/transaction')
-const User            = require('../models/user')
-const Account         = require('../models/account')
 const logger          = require('../config/winston')
 const { currentUser } = require('../utils/current-user-helper')
 
-
+// Get the Express Router
 const router  = express.Router()
 
 /*
