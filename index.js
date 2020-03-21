@@ -7,6 +7,7 @@ const express       = require('express')
 const bodyParser    = require('body-parser')
 
 const mongoose      = require('./server/db/mongoose')
+const morgan        = require('./server/config/morgan')
 const logger        = require('./server/config/winston')
 const accounts      = require('./server/routes/accounts')
 const transactions  = require('./server/routes/transactions')
@@ -17,6 +18,11 @@ const transactions  = require('./server/routes/transactions')
 const app = express()
 
 app.use(bodyParser.json())
+
+app.use(morgan(
+  ':method :url :status :response-time ms - :res[content-length] - :req[content-length] - :body ',
+  { stream: logger.stream, immediate: false }
+))
 
 app.use('/api', accounts)
 app.use('/api', transactions)
