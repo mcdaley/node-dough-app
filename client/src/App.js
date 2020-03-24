@@ -3,49 +3,29 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link
 }                 from "react-router-dom"
 
+import AppBarWithRouter     from './components/navbar/navbar'
 import Home       from './pages/home/home-page'
 import Accounts   from './pages/accounts/accounts-page'
 import About      from './pages/about/about-page'
 
-//* import logo       from './logo.svg';
 import './App.css';
 
 function App() {
   return (
     <div className="App">
       <Router>
-        <div>
-          <nav>
-            <ul>
-              <li>
-                <Link to="/">Home</Link>
-              </li>
-              <li>
-                <Link to="/accounts">Accounts</Link>
-              </li>
-              <li>
-                <Link to="/about">About</Link>
-              </li>
-            </ul>
-          </nav>
+        <AppBarWithRouter />
 
-          {/* A <Switch> looks through its children <Route>s and
-              renders the first one that matches the current URL. */}
-          <Switch>
-            <Route path="/accounts">
-              <Accounts />
-            </Route>
-            <Route path="/about">
-              <About />
-            </Route>
-            <Route path="/">
-              <Home />
-            </Route>
-          </Switch>
-        </div>
+        {/* A <Switch> looks through its children <Route>s and
+            renders the first one that matches the current URL. */}
+        <Switch>
+          <Route path="/home"     exact component={Home} />
+          <Route path="/accounts" exact component={Accounts} />
+          <Route path="/about"    exact component={About} />
+          <Route path="/"         component={Home} />
+        </Switch>
       </Router>
     </div>
   );

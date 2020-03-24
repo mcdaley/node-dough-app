@@ -1,13 +1,17 @@
 //-----------------------------------------------------------------------------
 // client/src/pages/accounts/accounts-page.js
 //-----------------------------------------------------------------------------
-import React  from 'react'
+import React      from 'react'
+import Container  from 'react-bootstrap/Container'
+import Row        from 'react-bootstrap/Row'
 
 function AccountsPage() {
   return (
-    <div>
-      <h1>Dough Money - Accounts Page</h1>
-    </div>
+    <Container>
+      <Row>
+        <h1>Dough Money - Accounts Page</h1>
+      </Row>
+    </Container>
   )
 }
 
