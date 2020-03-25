@@ -25,7 +25,7 @@
   },
   "scripts": {
     "client": "npm run start --prefix client",
-    "server": "nodemon index.js",
+    "server": "export NODE_ENV=development; nodemon index.js",
     "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
     "start": "node index.js",
     "test": "export NODE_ENV=test; mocha --exit server/**/*.test.js",

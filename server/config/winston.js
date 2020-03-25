@@ -17,7 +17,7 @@ const doughAppFormat = printf(({ level, message, label, timestamp }) => {
 // Configure loggin options
 var options = {
   file: {
-    level:            'info',
+    level:            'debug',
     filename:         `${appRoot}/logs/${process.env.LOG_FILE}.log`,
     handleExceptions: true,
     json:             true,

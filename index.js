@@ -24,6 +24,17 @@ app.use(morgan(
   { stream: logger.stream, immediate: false }
 ))
 
+///////////////////////////////////////////////////////////////////////////////
+// TODO: 03/24/2020
+// ALLOW CORS FOR DEVELOPMENT AND TESTING. LONGTERM, NEED TO ADD THE 
+// PROPER CONFIGURATION.
+///////////////////////////////////////////////////////////////////////////////
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
 app.use('/api', accounts)
 app.use('/api', transactions)
 
