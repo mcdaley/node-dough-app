@@ -40,8 +40,8 @@ function AccountsPage() {
       return (
         <AccountSummary 
           name                = {account.name}
-          financialInstitute  = {account.financialInstitue}
-          balance             = {account.initialBalance}
+          financialInstitute  = {account.financialInstitute}
+          balance             = {account.balance}
         />
       )
     })

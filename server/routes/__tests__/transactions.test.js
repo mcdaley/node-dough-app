@@ -23,16 +23,18 @@ let usersData = [
 
 let accountsData = [
   { 
-    _id:            new ObjectID(), 
-    name:           "Fergie Checking Account", 
-    initialBalance: 500,
-    userId:         usersData[0]._id,
+    _id:                new ObjectID(), 
+    name:               "Fergie Checking Account", 
+    financialInstitute: 'USAA',
+    initialBalance:     500,
+    userId:             usersData[0]._id,
   },
   { 
-    _id:            new ObjectID(), 
-    name:           "Joe's Savings Account",   
-    type:           'Savings',
-    userId:         usersData[0]._id,
+    _id:                new ObjectID(), 
+    name:               "Joe's Savings Account",
+    financialInstitute: 'NFCU',
+    type:               'Savings',
+    userId:             usersData[0]._id,
   }
 ]
 

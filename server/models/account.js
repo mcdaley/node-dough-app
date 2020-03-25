@@ -11,8 +11,9 @@ const accountSchema = new mongoose.Schema({
     minLength:  1,
     trim:       true,
   },
-  financialInstitue: {
+  financialInstitute: {
     type:       String,
+    required:   [true, 'Financial Institute is required'],
     minLength:  1,
     trim:       true,
   },
@@ -21,7 +22,7 @@ const accountSchema = new mongoose.Schema({
     enum:       ['Checking', 'Savings', 'Credit Card'],
     default:    'Checking',
   },
-  initialBalance: {
+  balance: {
     type:       Number,
     default:    0,
   },

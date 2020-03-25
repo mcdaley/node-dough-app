@@ -71,10 +71,11 @@ router.post('/v1/accounts', async (req, res) => {
   try {
     let user    = await currentUser()    // Simulate authentication
     let account = new Account({
-      name:           req.body.name,
-      userId:         user._id,
-      type:           req.body.type || 'Checking',
-      initialBalance: req.body.initialBalance || '0',
+      name:               req.body.name,
+      userId:             user._id,
+      financialInstitute: req.body.financialInstitute,
+      type:               req.body.type || 'Checking',
+      balance:            req.body.balance || '0',
     })
     let doc     = await account.save()
     

@@ -18,13 +18,14 @@ describe('Transaction', () => {
   describe('Validation rules', () => {
     // Create user and account models required for validation tests
     const user    = new User({
-      _id:    new ObjectID(), 
-      email:  'fergie@bills.com'
+      _id:                new ObjectID(), 
+      email:              'fergie@bills.com'
     })
     const account = new Account({
-      _id:    new ObjectID(), 
-      name:   'Validation Account', 
-      type:   'Checking',
+      _id:                new ObjectID(), 
+      name:               'Validation Account',
+      financialInstitute: 'Test Bank',
+      type:               'Checking',
     })
 
     it('Requires a description', () => {

@@ -18,16 +18,18 @@ let usersData = [
 
 let accountsData = [
   { 
-    _id:            new ObjectID(), 
-    name:           "Fergie Checking Account", 
-    initialBalance: 500,
-    userId:         usersData[0]._id,
+    _id:                new ObjectID(), 
+    name:               "Fergie Checking Account",
+    financialInstitute: 'USAA',
+    initialBalance:     500,
+    userId:             usersData[0]._id,
   },
   { 
-    _id:            new ObjectID(), 
-    name:           "Joe's Savings Account",   
-    type:           'Savings',
-    userId:         usersData[0]._id,
+    _id:                new ObjectID(), 
+    name:               "Joe's Savings Account",
+    financialInstitute: 'NFCU',
+    type:               'Savings',
+    userId:             usersData[0]._id,
   }
 ]
 
@@ -100,11 +102,12 @@ describe('Accounts API', () => {
   describe('POST /api/v1/accounts', () => {
     it('Creates an account', (done) => {
       let account = {
-        _id:              new ObjectID().toHexString(),
-        name:             'Test Credit Card',
-        type:             'Credit Card',
-        initialBalance:   -750.00,   
-        userId:           usersData[0]._id,
+        _id:                new ObjectID().toHexString(),
+        name:               'Test Credit Card',
+        financialInstitute: 'USAA',
+        type:               'Credit Card',
+        balance:            -750.00,   
+        userId:             usersData[0]._id,
       }
 
       request(app)
@@ -128,7 +131,8 @@ describe('Accounts API', () => {
             .then( (result) => {
               expect(result.name).to.equal(account.name)
               expect(result.type).to.equal(account.type)
-              expect(result.initialBalance).to.equal(account.initialBalance)
+              expect(result.financialInstitute).to.equal(account.financialInstitute)
+              expect(result.balance).to.equal(account.balance)
               done()
             })
             .catch( (err) => done(err) )
@@ -191,9 +195,9 @@ describe('Accounts API', () => {
     it('Updates an account', (done) => {
       let id      = accountsData[0]._id
       let update  = {
-        name:           'Updated Savings Account',
-        type:           'Savings',
-        initialBalance: 2000,
+        name:     'Updated Savings Account',
+        type:     'Savings',
+        balance:  2000,
       }
 
       request(app)
@@ -203,7 +207,7 @@ describe('Accounts API', () => {
         .expect( (res) => {
           expect(res.body.name).to.equal(update.name)
           expect(res.body.type).to.equal(update.type)
-          expect(res.body.initialBalance).to.equal(update.initialBalance)
+          expect(res.body.balance).to.equal(update.balance)
         })
         .end( (err, res) => {
           if(err) { return done(err) }

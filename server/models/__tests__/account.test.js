@@ -17,16 +17,18 @@ let usersData = [
 
 let accountsData = [
   { 
-    _id:            new ObjectID(), 
-    name:           "Fergie Checking Account", 
-    initialBalance: 500,
-    userId:         usersData[0]._id,
+    _id:                new ObjectID(), 
+    name:               "Fergie Checking Account",
+    financialInstitute: "Bank of America",
+    balance:            500,
+    userId:             usersData[0]._id,
   },
   { 
-    _id:            new ObjectID(), 
-    name:           "Joe's Savings Account",   
-    type:           'Savings',
-    userId:         usersData[0]._id,
+    _id:                new ObjectID(), 
+    name:               "Joe's Savings Account",
+    financialInstitute: "USAA",
+    type:               'Savings',
+    userId:             usersData[0]._id,
   }
 ]
 
@@ -57,19 +59,31 @@ describe('Account', () => {
       })
     })
 
-    it('Requires a number for the initial balance', () => {
-      let account = new Account({name: 'My Checking', initialBalance: 'Bad'})
+    it('Requires a financial institute', () => {
+      let account = new Account({
+        name:   'Missing FI', 
+        userId: user._id.toHexString()
+      })
 
       account.validate( (err) => {
-        expect(err.errors.initialBalance).to.exist
-        expect(err.errors.initialBalance).to.match(/Cast to Number failed/)
+        expect(err.errors.financialInstitute).to.exist
+        expect(err.errors.financialInstitute.message).to.match(/Financial Institute is required/)
+      })
+    })
+
+    it('Requires a number for the initial balance', () => {
+      let account = new Account({name: 'My Checking', balance: 'Bad'})
+
+      account.validate( (err) => {
+        expect(err.errors.balance).to.exist
+        expect(err.errors.balance).to.match(/Cast to Number failed/)
       })
     })
 
     it('Requires an account owner (i.e., userId)', () => {
       let account = new Account({
-        name:           'My Checking', 
-        initialBalance: '100'
+        name:     'My Checking', 
+        balance:  '100'
       })
 
       account.validate( (err) => {
@@ -80,10 +94,11 @@ describe('Account', () => {
 
     it('Validates a correct account', () => {
       let account = new Account({
-        name:           'My Checkiing', 
-        type:           'Checking', 
-        initialBalance: 500.00,
-        userId:         user._id,
+        name:               'My Checking',
+        financialInstitute: 'NFCU',
+        type:               'Checking', 
+        balance:            500.00,
+        userId:             user._id,
       })
 
       account.validate( (err) => {
@@ -107,7 +122,7 @@ describe('Account', () => {
       it('Returns the account', async () => {
         let account = await Account.findById(accountsData[0]._id)
         expect(account.name).to.equal(accountsData[0].name)
-        expect(account.initialBalance).to.equal(500)
+        expect(account.balance).to.equal(500)
         expect(account.userId.toHexString()).to.equal(usersData[0]._id.toHexString())
       })
 
@@ -154,10 +169,11 @@ describe('Account', () => {
     
     it('Saves valid account to the DB', (done) => {
       let account = new Account({ 
-        name:           'My Checkiing', 
-        type:           'Checking', 
-        initialBalance: 500.00,
-        userId:         users[0]._id,
+        name:               'My Checkiing', 
+        financialInstitute: 'NFCU',
+        type:               'Checking', 
+        balance:            500.00,
+        userId:             users[0]._id,
       })
 
       account.save( function(err) {
@@ -168,8 +184,9 @@ describe('Account', () => {
 
     it('Saves valid account and sets the default values', (done) => {
       let account = new Account({
-        name:   'Test Checking',
-        userId: users[0]._id,
+        name:               'Test Checking',
+        financialInstitute: 'Wells Fargo',
+        userId:             users[0]._id,
       })
 
       account
@@ -178,8 +195,9 @@ describe('Account', () => {
           Account.findOne({name: 'Test Checking'})
             .then( (result) => {
               expect(result.name).to.equal('Test Checking')
+              expect(result.financialInstitute).to.equal('Wells Fargo')
               expect(result.type).to.equal('Checking')
-              expect(result.initialBalance).to.equal(0)
+              expect(result.balance).to.equal(0)
               expect(result.userId.toHexString()).to.equal(users[0]._id.toHexString())
               done()
             })
@@ -190,10 +208,11 @@ describe('Account', () => {
 
     it('Saves valid account w/ parameters', (done) => {
       let account = new Account({
-        name:           'Test Savings',
-        type:           'Savings',
-        initialBalance: 1000,
-        userId:         users[0]._id,
+        name:               'Test Savings',
+        financialInstitute: '5/3 Bank',
+        type:               'Savings',
+        balance:            1000,
+        userId:             users[0]._id,
       })
 
       account
@@ -203,7 +222,8 @@ describe('Account', () => {
             .then( (result) => {
               expect(result.name).to.equal('Test Savings')
               expect(result.type).to.equal('Savings')
-              expect(result.initialBalance).to.equal(1000)
+              expect(result.financialInstitute).to.equal('5/3 Bank')
+              expect(result.balance).to.equal(1000)
               done()
             })
             .catch( (err) => done(err))
@@ -226,13 +246,13 @@ describe('Account', () => {
 
     it('Finds account by id and updates it', async () => {
       let query   = { _id: accountsData[0]._id }
-      let update  = { name: 'Update Account Test', initialBalance: 25.0 }
+      let update  = { name: 'Update Account Test', balance: 25.0 }
       let options = { new: true }
 
       let result  = await Account.findOneAndUpdate(query, update, options)
 
       expect(result.name).to.equal(update.name)
-      expect(result.initialBalance).to.equal(update.initialBalance)
+      expect(result.balance).to.equal(update.balance)
     })
 
     it('Returns null for account id that is not found', async () => {
