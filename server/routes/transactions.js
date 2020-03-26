@@ -126,7 +126,7 @@ router.post('/v1/accounts/:accountId/transactions', async (req, res) => {
     let transaction = new Transaction({
       description:  req.body.description,
       amount:       req.body.amount || 0,
-      date:         req.body.date || new Date(),
+      date:         req.body.date ? new Date(req.body.date) : new Date(),
       userId:       req.body.userId,
       accountId:    req.params.accountId
     })

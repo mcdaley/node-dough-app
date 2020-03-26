@@ -29,6 +29,7 @@ let accountsData = [
     name:               "Joe's Savings Account",
     financialInstitute: 'NFCU',
     type:               'Savings',
+    initialDate:        new Date().toISOString(),
     userId:             usersData[0]._id,
   }
 ]
@@ -106,7 +107,8 @@ describe('Accounts API', () => {
         name:               'Test Credit Card',
         financialInstitute: 'USAA',
         type:               'Credit Card',
-        balance:            -750.00,   
+        balance:            -750.00,
+        initialDate:        new Date('3/17/2020').toISOString(),
         userId:             usersData[0]._id,
       }
 
@@ -133,6 +135,7 @@ describe('Accounts API', () => {
               expect(result.type).to.equal(account.type)
               expect(result.financialInstitute).to.equal(account.financialInstitute)
               expect(result.balance).to.equal(account.balance)
+              expect(result.initialDate.toISOString()).to.equal(account.initialDate)
               done()
             })
             .catch( (err) => done(err) )

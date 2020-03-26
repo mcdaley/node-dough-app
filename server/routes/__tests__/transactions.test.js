@@ -42,12 +42,14 @@ let transactionsData = [
   {
     _id:            new ObjectID(),
     description:    'Target',
+    date:           new Date('3/24/2020').toISOString(),
     accountId:      accountsData[0]._id,
     userId:         accountsData[0].userId,
   },
   {
     _id:            new ObjectID(),
     description:    'Haystack Pizza',
+    date:           new Date('3/17/2020').toISOString(),
     accountId:      accountsData[0]._id,
     userId:         accountsData[0].userId,
   },
@@ -135,6 +137,7 @@ describe('Transactions API', () => {
         .expect( (res) => {
           let {transaction} = res.body
           expect(transaction.description).to.equal(transactionsData[1].description)
+          expect(transaction.date).to.equal(transactionsData[1].date)
           expect(transaction.accountId).to.equal(transactionsData[1].accountId.toHexString())
           expect(transaction.userId).to.equal(usersData[0]._id.toHexString())
         })
@@ -180,6 +183,7 @@ describe('Transactions API', () => {
         _id:          new ObjectID().toHexString(),
         description:  'Test Transaction',
         amount:       40.25,
+        date:         new Date('3/20/2020').toISOString(),
         userId:       accountsData[0].userId.toHexString(),
       }
     })
@@ -216,6 +220,7 @@ describe('Transactions API', () => {
           expect(res.body.description).to.equal(transaction.description)
           expect(res.body.amount).to.equal(transaction.amount)
           expect(res.body.accountId).to.equal(accountId)
+          expect(res.body.date).to.equal(transaction.date)
           expect(res.body.userId).to.equal(transaction.userId)
         })
         .end( (err, res) => {
@@ -231,6 +236,7 @@ describe('Transactions API', () => {
             .then( (result) => {
               expect(result.description).to.equal(transaction.description)
               expect(result.amount).to.equal(result.amount)
+              expect(result.date.toISOString()).to.equal(transaction.date)
               expect(result.accountId.toHexString()).to.equal(accountId)
               expect(result.userId.toHexString()).to.equal(transaction.userId)
               done()
