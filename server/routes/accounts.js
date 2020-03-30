@@ -2,6 +2,7 @@
 // server/routes/accounts.js
 //-----------------------------------------------------------------------------
 const express         = require('express')
+const mongoose        = require('mongoose')
 const { ObjectID }    = require('mongodb')
 
 const Account         = require('../models/account')
@@ -86,7 +87,44 @@ router.post('/v1/accounts', async (req, res) => {
   }
   catch(err) {
     logger.error('Failed to create account, err= %o', err)
-    res.send(err)
+    let errorResponse = {}
+    let postErrors    = []
+    if(err instanceof mongoose.Error.ValidationError) {
+      /**
+       * Loop through all of the errors and standardize on error format:
+       * { code: 7xx, type: '', path: 'form-field, message: ''}
+       */
+      Object.keys(err.errors).forEach( (formField) => {
+        if(err.errors[formField] instanceof mongoose.Error.ValidatorError) {
+          postErrors.push({
+            code:     701, 
+            category: 'ValidationError', 
+            ...err.errors[formField].properties
+          })
+        }
+        else if(err.errors[formField] instanceof mongoose.Error.CastError) {
+          postErrors.push({
+            code:         701,
+            category:     'ValidationError', 
+            path:         err.errors[formField].path,
+            type:         'cast-error',
+            value:        err.errors[formField].value,
+            shortMessage: err.errors[formField].stringValue,
+            message:      err.errors[formField].message,
+          })
+        }
+        else {
+          logger.error(`[error] Unknown mongoose.Error.ValidationError err= `, err)
+          postErrors.push({code: 799, message: "Unknown mongoose validation error"})
+        }
+      })
+      errorResponse = {errors: postErrors}
+    }
+    else {
+      logger.error(`[error] Failed to create account, err= `, err)
+      errorResponse = {errors: err}
+    }
+    res.status(400).send(errorResponse)
   }
 })
 

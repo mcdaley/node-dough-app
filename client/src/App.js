@@ -10,8 +10,9 @@ import Home       from './pages/home/home-page'
 import Accounts   from './pages/accounts/accounts-page'
 import About      from './pages/about/about-page'
 
-import './App.css';
-
+/**
+ * Dough App
+ */
 function App() {
   return (
     <div className="App">

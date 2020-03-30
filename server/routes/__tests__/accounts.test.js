@@ -101,6 +101,81 @@ describe('Accounts API', () => {
    * POST /api/v1/accounts
    */
   describe('POST /api/v1/accounts', () => {
+    it('Returns an error if required fields are blank', (done) => {
+      let account   = {...accountsData[1]}
+      delete(account.name)
+      delete(account.financialInstitute)
+
+      request(app)
+        .post('/api/v1/accounts')
+        .send(account)
+        .expect(400)
+        .expect( (res) => {
+          //* console.log(`[debug] post error response= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.errors.length).to.equal(2)
+          expect(res.body.errors[0].code).to.equal(701)
+          expect(res.body.errors[0].path).to.equal('name')
+          expect(res.body.errors[0].type).to.equal('required')
+          expect(res.body.errors[1].code).to.equal(701)
+          expect(res.body.errors[1].path).to.equal('financialInstitute')
+          expect(res.body.errors[1].type).to.equal('required')
+        })
+        .end(done)
+    })
+
+    it('Returns an error for invalid account type', (done) => {
+      let account   = {...accountsData[1]}
+      account.type  = 'Invalid-Account-Type'
+
+      request(app)
+        .post('/api/v1/accounts')
+        .send(account)
+        .expect(400)
+        .expect( (res) => {
+          expect(res.body.errors.length).to.equal(1)
+          expect(res.body.errors[0].code).to.equal(701)
+          expect(res.body.errors[0].path).to.equal('type')
+          expect(res.body.errors[0].type).to.equal('enum')
+        })
+        .end(done)
+    })
+
+    it('Returns an error for invalid balance', (done) => {
+      let account     = {...accountsData[1]}
+      account.balance = 'Invalid-Balance'
+
+      request(app)
+        .post('/api/v1/accounts')
+        .send(account)
+        .expect(400)
+        .expect( (res) => {
+          //* console.log(`[debug] post error response= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.errors.length).to.equal(1)
+          expect(res.body.errors[0].code).to.equal(701)
+          expect(res.body.errors[0].path).to.equal('balance')
+          expect(res.body.errors[0].type).to.equal('cast-error')
+        })
+        .end(done)
+    })
+
+    it('Returns an error for invalid balance', (done) => {
+      let account         = {...accountsData[1]}
+      account.initialDate = 'Invalid-Date'
+
+      request(app)
+        .post('/api/v1/accounts')
+        .send(account)
+        .expect(400)
+        .expect( (res) => {
+          //* console.log(`[debug] post error response= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.errors.length).to.equal(1)
+          expect(res.body.errors[0].code).to.equal(701)
+          expect(res.body.errors[0].path).to.equal('initialDate')
+          expect(res.body.errors[0].type).to.equal('cast-error')
+        })
+        .end(done)
+    })
+
     it('Creates an account', (done) => {
       let account = {
         _id:                new ObjectID().toHexString(),
@@ -123,11 +198,7 @@ describe('Accounts API', () => {
           if(err) {
             return done(err)
           }
-          /////////////////////////////////////////////////////////////////////
-          // TODO: 03/11/2020
-          // - FIGURE OUT HOW TO HANDLE "INITIAL-DATE" FIELD. I SHOULD SWITCH
-          //   TO UTC, SECONDS FROM 1970.
-          /////////////////////////////////////////////////////////////////////
+          
           Account
             .findOne({name: 'Test Credit Card', userId: account.userId})
             .then( (result) => {
