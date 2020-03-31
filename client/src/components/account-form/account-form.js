@@ -52,15 +52,8 @@ function AccountForm(props) {
         onSubmit         = {(values, {setSubmitting, resetForm}) => {
           setSubmitting(true)
 
-          setTimeout(() => {
-            alert(
-              'In the onSubmit callback, values= ' +
-              JSON.stringify(values, undefined, 2)
-            )
-            resetForm();
-            setSubmitting(false);
-          }, 250)
-
+          // Callback to submit form
+          props.onSubmit(values, resetForm, setSubmitting)
           return
         }}
       >
@@ -165,7 +158,7 @@ function AccountForm(props) {
               >
                 Save
               </Button>
-              <Button variant='secondary' onClick={ () => console.log(`[debug] Clear form`)}>
+              <Button variant='secondary' onClick={props.onClose}>
                 Cancel
               </Button>
             </Form>

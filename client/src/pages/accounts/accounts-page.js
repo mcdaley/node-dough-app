@@ -12,8 +12,8 @@ import {
 }                                       from 'react-bootstrap'
 
 import AccountSummary     from '../../components/account-summary/account-summary'
-import CreateAccountModal from '../../components/create-account/create-account'
-import AccountForm        from '../../components/account-form/account-form'
+import CreateAccountModal from '../../components/account-form/account-form-modal'
+//* import AccountForm        from '../../components/account-form/account-form'
 
 /**
  * List all of a user's accounts added to the dough app.
@@ -63,23 +63,40 @@ function AccountsPage() {
   }
 
   /**
+   * Callback to create the account once the user has entered form fields.
+   * @param {*} values 
+   * @param {*} resetForm 
+   * @param {*} setSubmitting 
+   */
+  const handleSubmit = (values, resetForm, setSubmitting) => {
+    setTimeout(() => {
+      alert(
+        'In the onSubmit callback, values= ' +
+        JSON.stringify(values, undefined, 2)
+      )
+      resetForm();
+      setSubmitting(false);
+      hideAddAccountModal()
+    }, 250)
+
+    return
+  }
+
+  /**
    * Render the Accounts page
    */
   return (
     <Container>
       <Row>
-        <CreateAccountModal 
-          show    = {show} 
-          onClose = {hideAddAccountModal} 
+        <CreateAccountModal
+          title     = 'Dude, Add a New Account'
+          show      = {show} 
+          onSubmit  = {handleSubmit}
+          onClose   = {hideAddAccountModal} 
         />
       </Row>
       <Row>
         <h1>Dough Money - Accounts Page</h1>
-      </Row>
-      <Row>
-        <Col style={{border: '1px solid #CCCCCC', borderRadius: 5, padding: '1.5rem'}}>
-          <AccountForm />
-        </Col>
       </Row>
       <Row>
         <ListGroup variant='flush' style={{width:'100%'}}>
