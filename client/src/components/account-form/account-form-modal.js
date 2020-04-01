@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------------
 // client/src/components/account-form/account-form-modal.js
 //-----------------------------------------------------------------------------
-import React, { useState }  from 'react'
+import React        from 'react'
 import {
   Modal,
-}                           from 'react-bootstrap'
+}                   from 'react-bootstrap'
 
-import AccountForm          from '../account-form/account-form'
+import AccountForm  from '../account-form/account-form'
 
 /**
  * Display a modal window the contains the form for creating new

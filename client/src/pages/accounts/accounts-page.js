@@ -6,14 +6,13 @@ import axios                            from 'axios'
 import {
   Container,
   Row,
-  Col,
   Button,
   ListGroup,
+  Alert,
 }                                       from 'react-bootstrap'
 
 import AccountSummary     from '../../components/account-summary/account-summary'
 import CreateAccountModal from '../../components/account-form/account-form-modal'
-//* import AccountForm        from '../../components/account-form/account-form'
 
 /**
  * List all of a user's accounts added to the dough app.
@@ -32,15 +31,117 @@ function AccountsPage() {
       } 
       catch (err) {
         console.log(`[error] Failed to retrieve user accounts, error= `, err)
+        setErrors({
+          server: {
+            code:     500,
+            message:  'Unable to get your accounts',
+          }
+        })
       }
     }
     fetchData()
-  }, [accounts.length])
+  }, [])
 
   // Toggle the visibility of the create account modal.
   const [show, setShow] = useState(false)
   const showAddAccountModal = () => setShow(true)
   const hideAddAccountModal = () => setShow(false)
+
+  // Handle create account errors
+  const [errors, setErrors] = useState({})
+
+  /**
+   * Callback to create the account once the user has entered form fields.
+   * @param {Object}   values        - Fields from the create account form
+   * @param {Function} resetForm     - callback to clear form fields
+   * @param {Function} setSubmitting - callback to reset form
+   */
+  const handleSubmit = (values, resetForm, setSubmitting) => {
+    console.log(`[info] Create account w/ values= `, values)
+    
+    // Create the account and update the state
+    createAccount({
+      name:               values.nickname,
+      financialInstitute: values.financialInstitute,
+      type:               values.accountType,
+      balance:            values.balance,
+      initialDate:        values.startDate,
+    })
+
+    // Close the modal
+    resetForm();
+    setSubmitting(false);
+    hideAddAccountModal()
+  }
+
+  /**
+   * Call the create accounts api. If the account was created then update
+   * the accounts, otherwise update the errors.
+   * 
+   * @param {*} params 
+   */
+  const createAccount = async (params) => {
+    const url = 'http://localhost:5000/api/v1/accounts'
+    try {
+      let response = await axios.post(url, params)
+
+      console.log(`[info] Created account= `, response.data)
+      setAccounts([...accounts, response.data])
+    }
+    catch(error) {
+      if (error.response) {
+        console.log(
+          `[error] Failed to create account, `  + 
+          `status=[${error.response.status}], ` +
+          `data= [${error.response.data}]`
+        )
+        // Convert errors from [] to an {}
+        let errors = {}
+        error.response.data.errors.forEach( (err) => {
+          errors[err.path] = {
+            code:     err.code, 
+            field:    err.path, 
+            message:  err.message}
+        })
+
+        setErrors(errors)
+      } 
+      else if (error.request) {
+        // The request was made but no response was received
+        setErrors({
+          server: {
+            code:     500,
+            message:  'Unable to connect server',
+          }
+        })
+      } 
+      else {
+        // Received unknown server error.
+        console.log('Error', error.message);
+        setErrors({
+          server: {
+            code:     500,
+            message:  'Unable to connect server',
+          }
+        })
+      }
+    }
+    return
+  }
+
+  /**
+   * Display a message if there was an error fetching the user's accounts
+   * or if there was an error creating a new account.
+   */
+  function displayError() {
+    if(errors.server == null) { return null }
+
+    return (
+      <Alert variant='danger'>
+        {errors.server.message}
+      </Alert>
+    )
+  }
 
   /**
    * Build array of account summary components to display.
@@ -63,26 +164,6 @@ function AccountsPage() {
   }
 
   /**
-   * Callback to create the account once the user has entered form fields.
-   * @param {*} values 
-   * @param {*} resetForm 
-   * @param {*} setSubmitting 
-   */
-  const handleSubmit = (values, resetForm, setSubmitting) => {
-    setTimeout(() => {
-      alert(
-        'In the onSubmit callback, values= ' +
-        JSON.stringify(values, undefined, 2)
-      )
-      resetForm();
-      setSubmitting(false);
-      hideAddAccountModal()
-    }, 250)
-
-    return
-  }
-
-  /**
    * Render the Accounts page
    */
   return (
@@ -97,6 +178,9 @@ function AccountsPage() {
       </Row>
       <Row>
         <h1>Dough Money - Accounts Page</h1>
+      </Row>
+      <Row>
+        {displayError()}
       </Row>
       <Row>
         <ListGroup variant='flush' style={{width:'100%'}}>
