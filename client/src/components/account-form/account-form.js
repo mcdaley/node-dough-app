@@ -17,11 +17,11 @@ import "react-datepicker/dist/react-datepicker.css";
 // Define account validation schema
 const accountValidationSchema = Yup.object({
   nickname: Yup.string()
-    .max(128, 'Nickname muust be 128 characters or less')
-    .required('Nickname is Required'),
+    .max(128, 'Nickname must be 128 characters or less')
+    .required('Nickname is required'),
   financialInstitute: Yup.string()
     .max(128, 'Financial Institute muust be 128 characters or less')
-    .required('Financial Institute is Required'),
+    .required('Financial Institute is required'),
   accountType: Yup.string()
     .oneOf(['Checking', 'Savings', 'Credit Card']),
   balance:    Yup.number()
@@ -66,7 +66,7 @@ function AccountForm(props) {
              touched,
              errors,
             isSubmitting }) => (
-            <Form noValidate onSubmit={handleSubmit}>
+            <Form noValidate onSubmit={handleSubmit} data-testid='account-form'>
               {/* Account Nickname */}
               <Form.Group controlId='nickname'>
                 <Form.Label>Account Nickname</Form.Label>
@@ -80,7 +80,7 @@ function AccountForm(props) {
                   value       = {values.nickname}
                   isInvalid   = {touched.nickname && !!errors.nickname}
                 />
-                <Form.Control.Feedback type='invalid'>
+                <Form.Control.Feedback type='invalid' data-testid='nickname-error'>
                   {errors.nickname ? errors.nickname : null}
                 </Form.Control.Feedback>
               </Form.Group>
@@ -97,7 +97,7 @@ function AccountForm(props) {
                   onBlur      = {handleBlur}
                   isInvalid   = {touched.financialInstitute && !!errors.financialInstitute}
                 />
-                <Form.Control.Feedback type='invalid'>
+                <Form.Control.Feedback type='invalid' data-testid='fi-error'>
                   {errors.financialInstitute ? errors.financialInstitute : null}
                 </Form.Control.Feedback>
               </Form.Group>
@@ -131,7 +131,7 @@ function AccountForm(props) {
                       onChange    = {handleChange}
                       isInvalid   = {!!errors.balance}
                     />
-                    <Form.Control.Feedback type="invalid">
+                    <Form.Control.Feedback type="invalid" data-testid='balance-error'>
                       {errors.balance ? errors.balance : null}
                     </Form.Control.Feedback>
                   </Col>
@@ -139,10 +139,11 @@ function AccountForm(props) {
                     <Form.Label>As of Date</Form.Label>
                     <div>
                       <DatePicker
-                        id        = 'asOfDate'
-                        className = 'form-control'
-                        selected  = {values.startDate}
-                        onChange  = {(e) => setFieldValue('startDate', e)}
+                        id          = 'asOfDate'
+                        className   = 'form-control'
+                        placeholder = 'mm/dd/yyyy'
+                        selected    = {values.startDate}
+                        onChange    = {(e) => setFieldValue('startDate', e)}
                       />
                     </div>
                   </Col>
