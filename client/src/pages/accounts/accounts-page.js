@@ -7,11 +7,10 @@ import {
   Container,
   Row,
   Button,
-  ListGroup,
   Alert,
 }                                       from 'react-bootstrap'
 
-import AccountSummary     from '../../components/account-summary/account-summary'
+import AccountsList       from '../../components/accounts-list/accounts-list'
 import CreateAccountModal from '../../components/account-form/account-form-modal'
 
 /**
@@ -143,25 +142,7 @@ function AccountsPage() {
     )
   }
 
-  /**
-   * Build array of account summary components to display.
-   */ 
-  function displayAccounts() {
-    if(accounts.length === 0) { return null }
-
-    const accountsList = accounts.map( (account) => {
-      return (
-        <ListGroup.Item key={account._id}>
-          <AccountSummary 
-            name                = {account.name}
-            financialInstitute  = {account.financialInstitute}
-            balance             = {account.balance}
-          />
-        </ListGroup.Item>
-      )
-    })
-    return accountsList
-  }
+  
 
   /**
    * Render the Accounts page
@@ -170,7 +151,7 @@ function AccountsPage() {
     <Container>
       <Row>
         <CreateAccountModal
-          title     = 'Dude, Add a New Account'
+          title     = 'Add a New Account'
           show      = {show} 
           onSubmit  = {handleSubmit}
           onClose   = {hideAddAccountModal} 
@@ -183,9 +164,7 @@ function AccountsPage() {
         {displayError()}
       </Row>
       <Row>
-        <ListGroup variant='flush' style={{width:'100%'}}>
-          {displayAccounts()}
-        </ListGroup>
+        <AccountsList accounts={accounts} />
       </Row>
       <Row>
         <Button variant='primary' onClick={showAddAccountModal}>
