@@ -21,7 +21,7 @@ describe('AccountForm', () => {
    })
 
   it('Renders the form to create a new account', () => {
-    const { getByLabelText, getByPlaceholderText } = render(<AccountForm />); 
+    const { getByLabelText, getByPlaceholderText } = render(<AccountForm />)
 
     expect(getByLabelText('Account Nickname')).toHaveTextContent('')
     expect(getByLabelText('Financial Institute')).toHaveTextContent('')

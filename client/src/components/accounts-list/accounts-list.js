@@ -22,7 +22,7 @@ const AccountsList = (props) => {
 
     const accountsList = accounts.map( (account) => {
       return (
-        <ListGroup.Item key={account._id}>
+        <ListGroup.Item key={account._id} data-testid='row'>
           <AccountSummary 
             name                = {account.name}
             financialInstitute  = {account.financialInstitute}

@@ -25,7 +25,7 @@ function AccountsPage() {
       try {
         const result = await axios.get('http://localhost:5000/api/v1/accounts');
         
-        console.log(`[debug] fetchData, results = `, result.data)
+        //* console.log(`[debug] fetchData, results = `, result.data)
         setAccounts(result.data.accounts);
       } 
       catch (err) {
@@ -136,7 +136,7 @@ function AccountsPage() {
     if(errors.server == null) { return null }
 
     return (
-      <Alert variant='danger'>
+      <Alert variant='danger' style={{width:'100%'}}>
         {errors.server.message}
       </Alert>
     )
