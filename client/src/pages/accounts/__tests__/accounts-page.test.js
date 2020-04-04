@@ -6,13 +6,18 @@ import React              from 'react'
 import {
   render,
   cleanup,
+  fireEvent,
   waitForElement,
+  getByText,
+  getByTitle,
+  wait,
 }                         from '@testing-library/react'
 
 import accountsApiMock    from '../../../api/accounts-api'
 jest.mock('../../../api/accounts-api') 
 
 import AccountsPage       from '../accounts-page'
+import { act } from 'react-dom/test-utils'
 
 // Mock account data
 const accountsData = [
@@ -41,29 +46,47 @@ const accountsData = [
 // ADD THE FOLLOWING TEST FUNCTIONALITIES
 // - VERIFY THE PAGE TITLE
 // - VERIFY THE ADD ACCOUNT BUTTON
-// - FIGURE OUT THE BEST WAY TO CLEANUP AXIOS MOCKS
+// [x] - FIGURE OUT THE BEST WAY TO CLEANUP AXIOS MOCKS
 //
-// TEST THE CREATE ACCOUNT MODAL
-// - LAUNCH MODAL, CREATE ACCOUNT, VERY ACCOUNT LIST IS UPDATED
+// [x] TEST THE CREATE ACCOUNT MODAL
+// [x] - LAUNCH MODAL, CREATE ACCOUNT, VERY ACCOUNT LIST IS UPDATED
 ///////////////////////////////////////////////////////////////////////////////
 describe('AccountsPage', () => {
   afterEach( () => {
+    cleanup()
     jest.resetAllMocks()
   })
 
-  it('Returns a list of accounts', async () => {
-    // Mock the fetch call by passing in an array of accountsData
-    accountsApiMock.get.mockResolvedValueOnce(accountsData)
+  describe('Fetch accounts', () => {
+    it('Returns a list of accounts', async () => {
+      // Mock the fetch call by passing in an array of accountsData
+      accountsApiMock.get.mockResolvedValueOnce(accountsData)
+  
+      const { getAllByTestId } = render(<AccountsPage />)
+  
+      const rowValues = await waitForElement( () => getAllByTestId('row') )
+  
+      expect(accountsApiMock.get).toHaveBeenCalledTimes(1)
+      expect(rowValues.length).toBe(2)
+      expect(rowValues[0].querySelector('h2')).toHaveTextContent(accountsData[0].name)
+      expect(rowValues[0].querySelector('h6')).toHaveTextContent(accountsData[0].financialInstitute)
+      expect(rowValues[1].querySelector('h2')).toHaveTextContent(accountsData[1].name)
+      expect(rowValues[1].querySelector('h6')).toHaveTextContent(accountsData[1].financialInstitute)
+    })
+  })
 
-    const { getAllByTestId } = render(<AccountsPage />)
+  describe('Add acount modal', () => {
+    it('Opens the modal', async () => {
+      // Mock the fetch call by passing in an array of accountsData
+      accountsApiMock.get.mockResolvedValueOnce(accountsData)
 
-    const rowValues = await waitForElement( () => getAllByTestId('row') )
+      const { getByText, getByTitle } = render(<AccountsPage />)
 
-    expect(accountsApiMock.get).toHaveBeenCalledTimes(1)
-    expect(rowValues.length).toBe(2)
-    expect(rowValues[0].querySelector('h2')).toHaveTextContent(accountsData[0].name)
-    expect(rowValues[0].querySelector('h6')).toHaveTextContent(accountsData[0].financialInstitute)
-    expect(rowValues[1].querySelector('h2')).toHaveTextContent(accountsData[1].name)
-    expect(rowValues[1].querySelector('h6')).toHaveTextContent(accountsData[1].financialInstitute)
+      await wait( () => fireEvent.click(getByText('Add Account')) )
+      
+      expect(getByText('Add a New Account')).toBeTruthy()
+      expect(getByText('Save')).toBeTruthy()
+      expect(getByText('Cancel')).toBeTruthy()
+    })
   })
 })
