@@ -12,6 +12,7 @@ import {
 
 import AccountsList       from '../../components/accounts-list/accounts-list'
 import CreateAccountModal from '../../components/account-form/account-form-modal'
+import AccountsAPI        from '../../api/accounts-api'
 
 /**
  * List all of a user's accounts added to the dough app.
@@ -23,19 +24,14 @@ function AccountsPage() {
   useEffect( () => {
     const fetchData = async () => {
       try {
-        const result = await axios.get('http://localhost:5000/api/v1/accounts');
+        let accounts = await AccountsAPI.get()
         
-        //* console.log(`[debug] fetchData, results = `, result.data)
-        setAccounts(result.data.accounts);
+        //* console.log(`[debug] AccountsAPI.get(), accounts = `, accounts)
+        setAccounts(accounts);
       } 
-      catch (err) {
-        console.log(`[error] Failed to retrieve user accounts, error= `, err)
-        setErrors({
-          server: {
-            code:     500,
-            message:  'Unable to get your accounts',
-          }
-        })
+      catch (error) {
+        console.log(`[error] Failed to retrieve user accounts, error= `, error)
+        setErrors(error)
       }
     }
     fetchData()
@@ -55,77 +51,31 @@ function AccountsPage() {
    * @param {Function} resetForm     - callback to clear form fields
    * @param {Function} setSubmitting - callback to reset form
    */
-  const handleSubmit = (values, resetForm, setSubmitting) => {
+  const handleSubmit = async (values, resetForm, setSubmitting) => {
     console.log(`[info] Create account w/ values= `, values)
-    
+
     // Create the account and update the state
-    createAccount({
-      name:               values.nickname,
-      financialInstitute: values.financialInstitute,
-      type:               values.accountType,
-      balance:            values.balance,
-      initialDate:        values.startDate,
-    })
-
-    // Close the modal
-    resetForm();
-    setSubmitting(false);
-    hideAddAccountModal()
-  }
-
-  /**
-   * Call the create accounts api. If the account was created then update
-   * the accounts, otherwise update the errors.
-   * 
-   * @param {*} params 
-   */
-  const createAccount = async (params) => {
-    const url = 'http://localhost:5000/api/v1/accounts'
     try {
-      let response = await axios.post(url, params)
+      let account = await AccountsAPI.create({
+        name:               values.nickname,
+        financialInstitute: values.financialInstitute,
+        type:               values.accountType,
+        balance:            values.balance,
+        initialDate:        values.startDate,
+      })
 
-      console.log(`[info] Created account= `, response.data)
-      setAccounts([...accounts, response.data])
+      setAccounts([...accounts, account])
     }
     catch(error) {
-      if (error.response) {
-        console.log(
-          `[error] Failed to create account, `  + 
-          `status=[${error.response.status}], ` +
-          `data= [${error.response.data}]`
-        )
-        // Convert errors from [] to an {}
-        let errors = {}
-        error.response.data.errors.forEach( (err) => {
-          errors[err.path] = {
-            code:     err.code, 
-            field:    err.path, 
-            message:  err.message}
-        })
-
-        setErrors(errors)
-      } 
-      else if (error.request) {
-        // The request was made but no response was received
-        setErrors({
-          server: {
-            code:     500,
-            message:  'Unable to connect server',
-          }
-        })
-      } 
-      else {
-        // Received unknown server error.
-        console.log('Error', error.message);
-        setErrors({
-          server: {
-            code:     500,
-            message:  'Unable to connect server',
-          }
-        })
-      }
+      console.log(`[error] Failed to create account, error= `, error)
+      setErrors(error)
     }
-    return
+    finally {
+      // Cleanup and close the modal.
+      resetForm()
+      setSubmitting(false)
+      hideAddAccountModal()
+    }
   }
 
   /**
@@ -141,8 +91,6 @@ function AccountsPage() {
       </Alert>
     )
   }
-
-  
 
   /**
    * Render the Accounts page

@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
-// client/src/pages/accounts/__tests__/__mocks__/axios.js
+// client/src/pages/accounts/__tests__/__mocks__/accounts-api.js
 //-----------------------------------------------------------------------------
 export default {
-  get:  jest.fn().mockResolvedValue({ data: {} }),
-  post: jest.fn().mockResolvedValue({ data: {} })
+  get:    jest.fn().mockResolvedValue([]),
+  create: jest.fn().mockResolvedValue({})
 };

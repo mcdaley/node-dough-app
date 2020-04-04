@@ -1,18 +1,18 @@
 //-----------------------------------------------------------------------------
 // client/src/pages/accounts/__tests__/accounts-page.test.js
 //-----------------------------------------------------------------------------
-import React        from 'react'
+import React              from 'react'
 
 import {
   render,
   cleanup,
   waitForElement,
-}                     from '@testing-library/react'
-import axiosMock      from 'axios'
+}                         from '@testing-library/react'
 
-import AccountsPage   from '../accounts-page'
+import accountsApiMock    from '../../../api/accounts-api'
+jest.mock('../../../api/accounts-api') 
 
-jest.mock('axios')    // https://jestjs.io/docs/en/mock-functions#mocking-modules
+import AccountsPage       from '../accounts-page'
 
 // Mock account data
 const accountsData = [
@@ -47,24 +47,19 @@ const accountsData = [
 // - LAUNCH MODAL, CREATE ACCOUNT, VERY ACCOUNT LIST IS UPDATED
 ///////////////////////////////////////////////////////////////////////////////
 describe('AccountsPage', () => {
-  /*****
   afterEach( () => {
-    axiosMock.get.mockClear()
+    jest.resetAllMocks()
   })
-  *****/
-  afterEach(cleanup)
 
   it('Returns a list of accounts', async () => {
-    // Mock the fetch call.
-    axiosMock.get.mockResolvedValueOnce({
-      data: { accounts: accountsData },
-    })
+    // Mock the fetch call by passing in an array of accountsData
+    accountsApiMock.get.mockResolvedValueOnce(accountsData)
 
     const { getAllByTestId } = render(<AccountsPage />)
 
     const rowValues = await waitForElement( () => getAllByTestId('row') )
 
-    expect(axiosMock.get).toHaveBeenCalledTimes(1)
+    expect(accountsApiMock.get).toHaveBeenCalledTimes(1)
     expect(rowValues.length).toBe(2)
     expect(rowValues[0].querySelector('h2')).toHaveTextContent(accountsData[0].name)
     expect(rowValues[0].querySelector('h6')).toHaveTextContent(accountsData[0].financialInstitute)
