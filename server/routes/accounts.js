@@ -75,7 +75,7 @@ router.post('/v1/accounts', async (req, res) => {
       name:               req.body.name,
       userId:             user._id,
       financialInstitute: req.body.financialInstitute,
-      initialDate:        req.body.initialDate ? new Date(req.body.initialDate) : new Date(),
+      asOfDate:           req.body.asOfDate ? new Date(req.body.asOfDate) : new Date(),
       type:               req.body.type    || 'Checking',
       balance:            req.body.balance || '0',
     })

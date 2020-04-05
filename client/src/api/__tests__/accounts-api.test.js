@@ -14,7 +14,7 @@ const accountsData = [
     financialInstitute: 'Bank', 
     type:               'Checking', 
     balance:            100.00,
-    initialDate:        '2020-03-31T07:00:00.000Z',
+    asOfDate:           '2020-03-31T07:00:00.000Z',
     userId:             'Me'
   },
   { 
@@ -23,7 +23,7 @@ const accountsData = [
     financialInstitute: 'Credit Union', 
     type:               'Credit Card', 
     balance:            500.00,
-    initialDate:        '2020-03-31T07:00:00.000Z',
+    asOfDate:           '2020-03-31T07:00:00.000Z',
     userId:             'Me',
   }
 ]
@@ -99,7 +99,7 @@ describe('Accounts API', () => {
         financialInstitute: 'Credit Union', 
         type:               'Credit Card', 
         balance:            500.00,
-        initialDate:        '2020-03-31T07:00:00.000Z',
+        asOfDate:           '2020-03-31T07:00:00.000Z',
       }
 
       // Add mock implementation to simulate a server error
@@ -121,7 +121,7 @@ describe('Accounts API', () => {
         financialInstitute: 'Credit Union', 
         type:               'Credit Card', 
         balance:            500.00,
-        initialDate:        '2020-03-31T07:00:00.000Z',
+        asOfDate:           '2020-03-31T07:00:00.000Z',
       }
 
       const serverError = {

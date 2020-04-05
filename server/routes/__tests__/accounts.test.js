@@ -29,7 +29,7 @@ let accountsData = [
     name:               "Joe's Savings Account",
     financialInstitute: 'NFCU',
     type:               'Savings',
-    initialDate:        new Date().toISOString(),
+    asOfDate:           new Date().toISOString(),
     userId:             usersData[0]._id,
   }
 ]
@@ -159,8 +159,8 @@ describe('Accounts API', () => {
     })
 
     it('Returns an error for invalid balance', (done) => {
-      let account         = {...accountsData[1]}
-      account.initialDate = 'Invalid-Date'
+      let account       = {...accountsData[1]}
+      account.asOfDate  = 'Invalid-Date'
 
       request(app)
         .post('/api/v1/accounts')
@@ -170,7 +170,7 @@ describe('Accounts API', () => {
           //* console.log(`[debug] post error response= `, JSON.stringify(res.body, undefined, 2))
           expect(res.body.errors.length).to.equal(1)
           expect(res.body.errors[0].code).to.equal(701)
-          expect(res.body.errors[0].path).to.equal('initialDate')
+          expect(res.body.errors[0].path).to.equal('asOfDate')
           expect(res.body.errors[0].type).to.equal('cast-error')
         })
         .end(done)
@@ -183,7 +183,7 @@ describe('Accounts API', () => {
         financialInstitute: 'USAA',
         type:               'Credit Card',
         balance:            -750.00,
-        initialDate:        new Date('3/17/2020').toISOString(),
+        asOfDate:           new Date('3/17/2020').toISOString(),
         userId:             usersData[0]._id,
       }
 
@@ -206,7 +206,7 @@ describe('Accounts API', () => {
               expect(result.type).to.equal(account.type)
               expect(result.financialInstitute).to.equal(account.financialInstitute)
               expect(result.balance).to.equal(account.balance)
-              expect(result.initialDate.toISOString()).to.equal(account.initialDate)
+              expect(result.asOfDate.toISOString()).to.equal(account.asOfDate)
               done()
             })
             .catch( (err) => done(err) )

@@ -2,7 +2,6 @@
 // client/src/pages/accounts/accounts-page.js
 //-----------------------------------------------------------------------------
 import React, { useState, useEffect }   from 'react'
-import axios                            from 'axios'
 import {
   Container,
   Row,
@@ -61,7 +60,7 @@ function AccountsPage() {
         financialInstitute: values.financialInstitute,
         type:               values.accountType,
         balance:            values.balance,
-        initialDate:        values.startDate,
+        asOfDate:           values.asOfDate,
       })
 
       setAccounts([...accounts, account])

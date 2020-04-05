@@ -1,3 +1,88 @@
+# Dough Money
+
+## Applicatoin Architecture
+
+### Models
+Overview of the DB models
+
+#### Account
+```
+{
+  name: {
+    description:  'Account nickname',
+    type:         'String',
+    required:     true,
+    
+  },
+  financialInstitute: {
+    description:  'Name of the FI where the account is located',
+    type:         String,
+    required:     true,
+  },
+  type: {
+    description:  'Type of the account',
+    type:         'String',
+    enum:         ['Checking', 'Savings', 'Credit Card'],
+    default:      'Checking',
+    required:     true,
+  },
+  balance: {
+    description:  'Current account balance'
+    type:         Number,
+    default:      0
+  },
+  asOfDate: {
+    description:  'Date for the current balance'
+    note:         'RENAME INITIAL DATE TO ASOFDATE',
+    type:         Date,
+    default:      new Date(),
+  }
+  userId: {
+    description:  'Reference to user that owns the account'
+    type:         mongoose.Schema.Types.ObjectId,
+    required:     true,
+  }
+}
+```
+
+#### Transaction
+```
+{
+  description: {
+    description:  'Transaction payor or payee',
+    type:         'String',
+    required:     true,
+  },
+  date: {
+    description:  'Date of transaction',
+    type:         Date,
+    default:      new Date(),
+  },
+  category: {
+    description:  'Transaction classification used for reporting',
+    type:         'String',
+    default:      '',
+  },
+  amount: {
+    description:  'Amount of the transaction',
+    type:         Number,
+    default:      0.00
+  },
+  accountId: {
+    description:  'Foreign key to account',
+    type:         'mongoose.Schema.Types.ObjectId',
+    required:     true,
+  },
+  userId: {
+    description:  'Foreign key to user',
+    type:         mongoose.Schema.Types.ObjectId,
+    required:     true,
+  }
+}
+```
+
+#### User
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

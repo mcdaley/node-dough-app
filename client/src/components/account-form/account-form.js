@@ -26,7 +26,7 @@ const accountValidationSchema = Yup.object({
     .oneOf(['Checking', 'Savings', 'Credit Card']),
   balance:    Yup.number()
     .typeError('Balance must be a number'),
-  startDate:  Yup.date()
+  asOfDate:   Yup.date()
     .typeError('Invalid date')
     .default(function() {
       return new Date();
@@ -46,7 +46,7 @@ function AccountForm(props) {
           financialInstitute: '',
           accountType:        'Checking',
           balance:            '',
-          startDate:          '',
+          asOfDate:           '',
         }}
         validationSchema = {accountValidationSchema}
         onSubmit         = {(values, {setSubmitting, resetForm}) => {
@@ -142,8 +142,8 @@ function AccountForm(props) {
                         id          = 'asOfDate'
                         className   = 'form-control'
                         placeholder = 'mm/dd/yyyy'
-                        selected    = {values.startDate}
-                        onChange    = {(e) => setFieldValue('startDate', e)}
+                        selected    = {values.asOfDate}
+                        onChange    = {(e) => setFieldValue('asOfDate', e)}
                       />
                     </div>
                   </Col>

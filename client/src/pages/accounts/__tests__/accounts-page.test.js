@@ -41,16 +41,6 @@ const accountsData = [
   }
 ]
 
-///////////////////////////////////////////////////////////////////////////////
-// TODO: 04/03/2020
-// ADD THE FOLLOWING TEST FUNCTIONALITIES
-// - VERIFY THE PAGE TITLE
-// - VERIFY THE ADD ACCOUNT BUTTON
-// [x] - FIGURE OUT THE BEST WAY TO CLEANUP AXIOS MOCKS
-//
-// [x] TEST THE CREATE ACCOUNT MODAL
-// [x] - LAUNCH MODAL, CREATE ACCOUNT, VERY ACCOUNT LIST IS UPDATED
-///////////////////////////////////////////////////////////////////////////////
 describe('AccountsPage', () => {
   afterEach( () => {
     cleanup()

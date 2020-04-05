@@ -26,7 +26,7 @@ const accountSchema = new mongoose.Schema({
     type:       Number,
     default:    0,
   },
-  initialDate: {
+  asOfDate: {
     type:       Date,
     default:    new Date(),
   },
