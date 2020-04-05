@@ -52,7 +52,7 @@ function AccountsPage() {
    * @param {Function} setSubmitting - callback to reset form
    */
   const handleSubmit = async (values, resetForm, setSubmitting) => {
-    console.log(`[info] Create account w/ values= `, values)
+    //* console.log(`[info] Create account w/ input form fields= `, values)
 
     // Create the account and update the state
     try {
