@@ -9,12 +9,13 @@ import {
   useLocation 
 }                 from 'react-router-dom'
 
-const AppBar = (props) => {
+/**
+ * Component for the top navigation bar for the dough app. 
+ */
+const AppBar = () => {
   let location = useLocation()
   
-  /**
-   * Render the navbar
-   */
+  // Render the top navigation bar
   return(
     <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
       <Navbar.Brand     href="/">Dough Money</Navbar.Brand>

@@ -14,7 +14,9 @@ import CreateAccountModal from '../../components/account-form/account-form-modal
 import AccountsAPI        from '../../api/accounts-api'
 
 /**
- * List all of a user's accounts added to the dough app.
+ * Page that displays a summary of all the user's accounts added to the
+ * dough app. The component fetches all of the user's accounts when it loads
+ * and allows the user to add new accounts.
  */
 function AccountsPage() {
 

@@ -6,12 +6,17 @@ import {
   Container,
   Col,
   Row,
-}                 from'react-bootstrap'
-import PropTypes  from'prop-types'
+}                 from 'react-bootstrap'
+import PropTypes  from 'prop-types'
 
 /**
- * Render account summary.
- * @param {*} props 
+ * Component that provides a high-leve summary of an account.
+ * 
+ * @prop {string} nickname           - User defined nickname for account.
+ * @prop {string} financialInstitute - FI where account is located.
+ * @prop {enum}   accountType        - Checking, Savings, or Credit Card
+ * @prop {number} balance            - Current account balance.
+ * @prop {date}   asOfDate           - Date of balance (last txn).
  */
 const AccountSummary = (props) => {
   let name                = props.name
@@ -37,9 +42,11 @@ const AccountSummary = (props) => {
 
 // PropTypes
 AccountSummary.propTypes = {
-  name:               PropTypes.string,
-  financialInstitute: PropTypes.string,
-  balance:            PropTypes.number,
+  name:               PropTypes.string.isRequired,
+  financialInstitute: PropTypes.string.isRequired,
+  balance:            PropTypes.number.isRequired,
+  accountType:        PropTypes.oneOf(['Checking', 'Savings', 'Credit Card']),
+  asOfDate:           PropTypes.instanceOf(Date)
 };
 
 // Export the AccountSummary

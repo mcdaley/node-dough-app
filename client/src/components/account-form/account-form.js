@@ -11,6 +11,7 @@ import {
   Button,
 }                           from 'react-bootstrap'
 import DatePicker           from 'react-datepicker'
+import PropTypes            from 'prop-types'
 
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -34,8 +35,14 @@ const accountValidationSchema = Yup.object({
 })
 
 /**
- * Form for adding a new account to a user's portfolio.
- * @param {*} props 
+ * Form for adding a new account to a user's portfolio or to edit an
+ * existing account.
+ * 
+ * @prop {string} nickname           - User defined nickname for account.
+ * @prop {string} financialInstitute - FI where account is located.
+ * @prop {enum}   accountType        - Checking, Savings, or Credit Card
+ * @prop {number} balance            - Current account balance.
+ * @prop {date}   asOfDate           - Date of balance (last txn).
  */
 function AccountForm(props) {
   return (
@@ -169,6 +176,15 @@ function AccountForm(props) {
     </Container>
   )
 }
+
+// PropTypes
+AccountForm.propTypes = {
+  name:               PropTypes.string,
+  financialInstitute: PropTypes.string,
+  balance:            PropTypes.number,
+  accountType:        PropTypes.oneOf(['Checking', 'Savings', 'Credit Card']),
+  asOfDate:           PropTypes.instanceOf(Date)
+};
 
 // Export the AccountForm
 export default AccountForm

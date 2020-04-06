@@ -1,14 +1,14 @@
-import React      from 'react'
+import React                from 'react'
 import {
   BrowserRouter as Router,
   Switch,
   Route,
-}                 from "react-router-dom"
+}                           from "react-router-dom"
 
 import AppBarWithRouter     from './components/navbar/navbar'
-import Home       from './pages/home/home-page'
-import Accounts   from './pages/accounts/accounts-page'
-import About      from './pages/about/about-page'
+import Home                 from './pages/home/home-page'
+import Accounts             from './pages/accounts/accounts-page'
+import About                from './pages/about/about-page'
 
 /**
  * Dough App
@@ -32,4 +32,5 @@ function App() {
   );
 }
 
+// Export the app.
 export default App;

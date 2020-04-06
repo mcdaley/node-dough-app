@@ -5,12 +5,13 @@ import React          from 'react'
 import {
   ListGroup,
 }                     from 'react-bootstrap'
+import PropTypes      from 'prop-types'
 
 import AccountSummary from '../account-summary/account-summary'
 
 /**
- * Returns an array account-summary components.
- * @param {*} props 
+ * Component that returns an array account-summary components.
+ * @prop {Array} accounts - An array of accounts.
  */
 const AccountsList = (props) => {
   let accounts = props.accounts
@@ -40,6 +41,11 @@ const AccountsList = (props) => {
       {displayAccounts()}
     </ListGroup>
   )
+}
+
+// PropTypes
+AccountsList.propTypes = {
+  accounts: PropTypes.array.isRequired
 }
 
 // Export the accounts list

@@ -1,6 +1,21 @@
 # Dough Money
 
-## Applicatoin Architecture
+## APIs
+
+### Account APIs
+
+#### GET /api/v1/accounts
+Return an array w/ all of the user's accounts/
+
+#### GET /api/v1/accounts/:id
+
+#### POST /api/v1/accounts
+
+#### PUT /api/v1/accounts/:id
+
+#### DELETE /api/v1/accounts/:id
+
+## Application Architecture
 
 ### Models
 Overview of the DB models
