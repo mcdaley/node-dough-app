@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// client/src/components/accounts-list/accounts-list.js
+// client/src/components/account/List.js
 //-----------------------------------------------------------------------------
 import React          from 'react'
 import {
@@ -7,13 +7,13 @@ import {
 }                     from 'react-bootstrap'
 import PropTypes      from 'prop-types'
 
-import AccountSummary from '../account-summary/account-summary'
+import AccountSummary from './Summary'
 
 /**
  * Component that returns an array account-summary components.
  * @prop {Array} accounts - An array of accounts.
  */
-const AccountsList = (props) => {
+const AccountList = (props) => {
   let accounts = props.accounts
   /**
    * Build array of account summary components to display.
@@ -44,9 +44,9 @@ const AccountsList = (props) => {
 }
 
 // PropTypes
-AccountsList.propTypes = {
+AccountList.propTypes = {
   accounts: PropTypes.array.isRequired
 }
 
 // Export the accounts list
-export default AccountsList
+export default AccountList

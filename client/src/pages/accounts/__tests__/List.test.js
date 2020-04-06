@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// client/src/pages/accounts/__tests__/accounts-page.test.js
+// client/src/pages/accounts/__tests__/List.test.js
 //-----------------------------------------------------------------------------
 import React              from 'react'
 
@@ -9,15 +9,13 @@ import {
   fireEvent,
   waitForElement,
   getByText,
-  getByTitle,
   wait,
 }                         from '@testing-library/react'
 
 import accountsApiMock    from '../../../api/accounts-api'
 jest.mock('../../../api/accounts-api') 
 
-import AccountsPage       from '../accounts-page'
-import { act } from 'react-dom/test-utils'
+import PagesAccountsList  from '../List'
 
 // Mock account data
 const accountsData = [
@@ -41,7 +39,7 @@ const accountsData = [
   }
 ]
 
-describe('AccountsPage', () => {
+describe('PagesAccountsList', () => {
   afterEach( () => {
     cleanup()
     jest.resetAllMocks()
@@ -52,7 +50,7 @@ describe('AccountsPage', () => {
       // Mock the fetch call by passing in an array of accountsData
       accountsApiMock.get.mockResolvedValueOnce(accountsData)
   
-      const { getAllByTestId } = render(<AccountsPage />)
+      const { getAllByTestId } = render(<PagesAccountsList />)
   
       const rowValues = await waitForElement( () => getAllByTestId('row') )
   
@@ -70,7 +68,7 @@ describe('AccountsPage', () => {
       // Mock the fetch call by passing in an array of accountsData
       accountsApiMock.get.mockResolvedValueOnce(accountsData)
 
-      const { getByText, getByTitle } = render(<AccountsPage />)
+      const { getByText } = render(<PagesAccountsList />)
 
       await wait( () => fireEvent.click(getByText('Add Account')) )
       
@@ -109,7 +107,7 @@ describe('AccountsPage', () => {
       // Render the accounts page.
       const { 
         getByText, getByPlaceholderText, getAllByTestId 
-      } = render(<AccountsPage />)
+      } = render(<PagesAccountsList />)
 
       await wait( () => fireEvent.click(getByText('Add Account')) )
 

@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// client/src/components/account-form/__tests__/account-form-modal.test.js
+// client/src/components/account/__tests__/Modal.test.js
 //-----------------------------------------------------------------------------
 import React                from 'react'
 
@@ -12,7 +12,7 @@ import {
   wait,
 }                           from '@testing-library/react'
 
-import CreateAccountModal   from '../account-form-modal'
+import CreateAccountModal   from '../Modal'
 
 describe('Account Form Modal', () => {
   afterEach( () => {

@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// client/src/components/account-form/__tests__/account-form.test.js
+// client/src/components/account/__tests__/Form.test.js
 //-----------------------------------------------------------------------------
 import React        from 'react'
 import {
@@ -9,7 +9,7 @@ import {
   wait,
 }                   from '@testing-library/react'
 
-import AccountForm  from '../account-form'
+import AccountForm  from '../Form'
 
 describe('AccountForm', () => {
   afterEach(cleanup)

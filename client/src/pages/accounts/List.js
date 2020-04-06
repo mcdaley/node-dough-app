@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// client/src/pages/accounts/accounts-page.js
+// client/src/pages/accounts/List.js
 //-----------------------------------------------------------------------------
 import React, { useState, useEffect }   from 'react'
 import {
@@ -9,8 +9,8 @@ import {
   Alert,
 }                                       from 'react-bootstrap'
 
-import AccountsList       from '../../components/accounts-list/accounts-list'
-import CreateAccountModal from '../../components/account-form/account-form-modal'
+import AccountList        from '../../components/account/List'
+import CreateAccountModal from '../../components/account/Modal'
 import AccountsAPI        from '../../api/accounts-api'
 
 /**
@@ -18,7 +18,7 @@ import AccountsAPI        from '../../api/accounts-api'
  * dough app. The component fetches all of the user's accounts when it loads
  * and allows the user to add new accounts.
  */
-function AccountsPage() {
+function PagesAccountsList() {
 
   // Fetch user accounts when page loads
   const [accounts, setAccounts] = useState([])
@@ -113,7 +113,7 @@ function AccountsPage() {
         {displayError()}
       </Row>
       <Row>
-        <AccountsList accounts={accounts} />
+        <AccountList accounts={accounts} />
       </Row>
       <Row>
         <Button variant='primary' onClick={showAddAccountModal}>
@@ -124,5 +124,5 @@ function AccountsPage() {
   )
 }
 
-// Export the AccountsPage
-export default AccountsPage
+// Export the PagesAccountsList
+export default PagesAccountsList

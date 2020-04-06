@@ -6,7 +6,7 @@ import {
   Modal,
 }                   from 'react-bootstrap'
 
-import AccountForm  from '../account-form/account-form'
+import AccountForm  from './Form'
 
 /**
  * Display a modal window the contains the form for creating new
@@ -18,7 +18,7 @@ import AccountForm  from '../account-form/account-form'
  * 
  * @return {Component} Modal window to create/edit an account.
  */
-function AccountFormModal(props) {
+function AccountModal(props) {
 
   /**
    * Render the add account modal
@@ -39,4 +39,4 @@ function AccountFormModal(props) {
 }
 
 // Export the create account modal
-export default AccountFormModal
+export default AccountModal

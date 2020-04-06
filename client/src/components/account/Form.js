@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// client/src/components/account-form/account-form.js
+// client/src/components/account/Form.js
 //-----------------------------------------------------------------------------
 import React                from 'react'
 import { Formik }           from 'formik'

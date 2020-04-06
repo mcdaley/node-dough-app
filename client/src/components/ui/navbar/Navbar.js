@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// client/src/components/navbar/navbar.js
+// client/src/components/ui/navbar/Navbar.js
 //-----------------------------------------------------------------------------
 import React      from 'react'
 import Navbar     from 'react-bootstrap/Navbar'
@@ -25,7 +25,7 @@ const AppBar = () => {
           <Nav.Link href="/home">
             Home
           </Nav.Link>
-          <Nav.Link href="/accounts">
+          <Nav.Link href="/accounts/list">
             Accounts
           </Nav.Link>
           <Nav.Link href="/about" >

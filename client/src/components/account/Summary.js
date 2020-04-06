@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// client/src/components/account-summary/account-summary.js
+// client/src/components/account/summary.js
 //-----------------------------------------------------------------------------
 import React      from 'react'
 import {
