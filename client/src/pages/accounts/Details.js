@@ -1,9 +1,9 @@
 //-----------------------------------------------------------------------------
 // client/src/pages/accounts/Details.js
 //-----------------------------------------------------------------------------
-import React  from 'react'
-import { Container, Button }  from 'react-bootstrap'
-import { useParams, useHistory } from 'react-router-dom'
+import React                      from 'react'
+import { Container, Button }      from 'react-bootstrap'
+import { useParams, useHistory }  from 'react-router-dom'
 
 /**
  * 

@@ -2,7 +2,7 @@
 // client/src/pages/accounts/__tests__/List.test.js
 //-----------------------------------------------------------------------------
 import React              from 'react'
-
+import { MemoryRouter }   from 'react-router-dom'
 import {
   render,
   cleanup,
@@ -50,7 +50,11 @@ describe('PagesAccountsList', () => {
       // Mock the fetch call by passing in an array of accountsData
       accountsApiMock.get.mockResolvedValueOnce(accountsData)
   
-      const { getAllByTestId } = render(<PagesAccountsList />)
+      const { getAllByTestId } = render(
+        <MemoryRouter>
+          <PagesAccountsList />
+        </MemoryRouter>
+      )
   
       const rowValues = await waitForElement( () => getAllByTestId('row') )
   
@@ -68,7 +72,11 @@ describe('PagesAccountsList', () => {
       // Mock the fetch call by passing in an array of accountsData
       accountsApiMock.get.mockResolvedValueOnce(accountsData)
 
-      const { getByText } = render(<PagesAccountsList />)
+      const { getByText } = render(
+        <MemoryRouter>
+          <PagesAccountsList />
+        </MemoryRouter>
+      )
 
       await wait( () => fireEvent.click(getByText('Add Account')) )
       
@@ -105,9 +113,11 @@ describe('PagesAccountsList', () => {
       accountsApiMock.create.mockResolvedValueOnce(params)
 
       // Render the accounts page.
-      const { 
-        getByText, getByPlaceholderText, getAllByTestId 
-      } = render(<PagesAccountsList />)
+      const { getByText, getByPlaceholderText, getAllByTestId } = render(
+        <MemoryRouter>
+          <PagesAccountsList />
+        </MemoryRouter>
+      )
 
       await wait( () => fireEvent.click(getByText('Add Account')) )
 

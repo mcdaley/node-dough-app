@@ -2,12 +2,12 @@
 // client/src/components/account/summary.js
 //-----------------------------------------------------------------------------
 import React          from 'react'
+import { useHistory } from 'react-router-dom'
 import {
   Container,
   Col,
   Row,
 }                     from 'react-bootstrap'
-import { useHistory } from 'react-router-dom'
 import PropTypes      from 'prop-types'
 
 /**
