@@ -7,8 +7,8 @@ import {
 
 import AppBarWithRouter     from './components/ui/navbar/Navbar'
 import Home                 from './pages/home/home-page'
-import PagesAccountsList    from './pages/accounts/List'
-import PagesAccountsDetails from './pages/accounts/Details'
+import PagesAccountsIndex   from './pages/accounts/Index'
+import PagesAccountsShow    from './pages/accounts/Show'
 import About                from './pages/about/about-page'
 
 /**
@@ -24,8 +24,8 @@ function App() {
             renders the first one that matches the current URL. */}
         <Switch>
           <Route path="/home"                 exact component={Home} />
-          <Route path="/accounts/list"        exact component={PagesAccountsList} />
-          <Route path="/accounts/details/:id" exact component={PagesAccountsDetails} />
+          <Route path="/accounts/list"        exact component={PagesAccountsIndex} />
+          <Route path="/accounts/details/:id" exact component={PagesAccountsShow} />
           <Route path="/about"                exact component={About} />
           <Route path="/"                     component={Home} />
         </Switch>

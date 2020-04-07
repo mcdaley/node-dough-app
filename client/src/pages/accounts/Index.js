@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// client/src/pages/accounts/List.js
+// client/src/pages/accounts/Index.js
 //-----------------------------------------------------------------------------
 import React, { useState, useEffect }   from 'react'
 import {
@@ -18,7 +18,7 @@ import AccountsAPI        from '../../api/accounts-api'
  * dough app. The component fetches all of the user's accounts when it loads
  * and allows the user to add new accounts.
  */
-function PagesAccountsList() {
+function PagesAccountsIndex() {
 
   // Fetch user accounts when page loads
   const [accounts, setAccounts] = useState([])
@@ -124,5 +124,5 @@ function PagesAccountsList() {
   )
 }
 
-// Export the PagesAccountsList
-export default PagesAccountsList
+// Export the PagesAccountsIndex
+export default PagesAccountsIndex

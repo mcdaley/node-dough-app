@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// client/src/pages/accounts/__tests__/List.test.js
+// client/src/pages/accounts/__tests__/Index.test.js
 //-----------------------------------------------------------------------------
 import React              from 'react'
 import { MemoryRouter }   from 'react-router-dom'
@@ -15,7 +15,7 @@ import {
 import accountsApiMock    from '../../../api/accounts-api'
 jest.mock('../../../api/accounts-api') 
 
-import PagesAccountsList  from '../List'
+import PagesAccountsIndex from '../Index'
 
 // Mock account data
 const accountsData = [
@@ -39,7 +39,7 @@ const accountsData = [
   }
 ]
 
-describe('PagesAccountsList', () => {
+describe('PagesAccountsIndex', () => {
   afterEach( () => {
     cleanup()
     jest.resetAllMocks()
@@ -52,7 +52,7 @@ describe('PagesAccountsList', () => {
   
       const { getAllByTestId } = render(
         <MemoryRouter>
-          <PagesAccountsList />
+          <PagesAccountsIndex />
         </MemoryRouter>
       )
   
@@ -74,7 +74,7 @@ describe('PagesAccountsList', () => {
 
       const { getByText } = render(
         <MemoryRouter>
-          <PagesAccountsList />
+          <PagesAccountsIndex />
         </MemoryRouter>
       )
 
@@ -115,7 +115,7 @@ describe('PagesAccountsList', () => {
       // Render the accounts page.
       const { getByText, getByPlaceholderText, getAllByTestId } = render(
         <MemoryRouter>
-          <PagesAccountsList />
+          <PagesAccountsIndex />
         </MemoryRouter>
       )
 

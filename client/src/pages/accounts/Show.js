@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// client/src/pages/accounts/Details.js
+// client/src/pages/accounts/Show.js
 //-----------------------------------------------------------------------------
 import React                      from 'react'
 import { Container, Button }      from 'react-bootstrap'
@@ -8,7 +8,7 @@ import { useParams, useHistory }  from 'react-router-dom'
 /**
  * 
  */
-const PagesAccountsDetails = () => {
+const PagesAccountsShow = () => {
   let { id }    = useParams()
   let history   = useHistory()
 
@@ -29,4 +29,4 @@ const PagesAccountsDetails = () => {
 }
 
 // Export the account details page
-export default PagesAccountsDetails
+export default PagesAccountsShow
