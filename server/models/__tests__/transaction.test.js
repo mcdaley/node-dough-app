@@ -61,9 +61,38 @@ describe('Transaction', () => {
       })
     })
 
-    it('Validates a transaction', () => {
+    it('Requires a valid transaction type (i.e., debit or credit)', () => {
+      let invalidTransaction = new Transaction({
+        description:  'Invalid transaction type',
+        accountId:    account._id,
+        userId:       user._id,
+        charge:       'BAD',
+      })
+
+      invalidTransaction.validate( (err) => {
+        expect(err.errors.charge).to.exist
+        expect(err.errors.charge.message).to.match(/not a valid enum value/)
+      })
+    })
+
+    it('Validates a transaction w/ minimum fields', () => {
       let transaction = new Transaction({
         description:  'Valid transaction',
+        accountId:    account._id,
+        userId:       user._id,
+      })
+
+      transaction.validate( (err) => {
+        expect(err).to.not.exist
+      })
+    })
+
+    it('Validates a transaction w/ all fields', () => {
+      let transaction = new Transaction({
+        description:  'Valid transaction',
+        category:     'Groceries',
+        charge:       'debit',
+        amount:       50.00,
         accountId:    account._id,
         userId:       user._id,
       })

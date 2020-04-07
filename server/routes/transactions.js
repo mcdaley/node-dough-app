@@ -1,10 +1,12 @@
 //-----------------------------------------------------------------------------
 // server/routes/transactions.js
 //-----------------------------------------------------------------------------
-const express       = require('express')
-const { ObjectID }  = require('mongodb')
+const express         = require('express')
+const mongoose        = require('mongoose')
+const { ObjectID }    = require('mongodb')
 
 const Transaction     = require('../models/transaction')
+const Account         = require('../models/account')
 const logger          = require('../config/winston')
 const { currentUser } = require('../utils/current-user-helper')
 
@@ -81,6 +83,13 @@ router.get('/v1/accounts/:accountId/transactions', async (req, res) => {
   logger.info(
     'GET /api/v1/accounts/:accountId/transactions, params= %o', req.params
   )
+
+  /////////////////////////////////////////////////////////////////////////////
+  // TODO: 04/07/2020
+  // NEED TO ENSURE THE USER CAN ONLY RETURN TRANSACTIONS FOR AN ACCOUNT
+  // THAT THE USER OWNS. WILL NEED TO IMPLEMENT THIS FEATURE WHEN I ADD
+  // AUTHENTICATION.
+  /////////////////////////////////////////////////////////////////////////////
   
   let accountId = req.params.accountId
   
@@ -94,6 +103,21 @@ router.get('/v1/accounts/:accountId/transactions', async (req, res) => {
 
   try {
     let user          = await currentUser()
+
+    // SEE THE ABOVE TODO ABOUT ADDING A CHECK FOR THE USER!
+    let account = await Account.findOne({
+      _id:      accountId,
+      //* userId:   userId,
+    })
+
+    if(account == null) {
+      logger.error('User id=[%s] trying access account id=[%s]', user._id, accountId)
+      return res.status(404).send({
+        code:     404,
+        message:  'Account not found'
+      })
+    }
+
     let transactions  = await Transaction.find({accountId: accountId})
 
     logger.debug(
@@ -120,15 +144,49 @@ router.post('/v1/accounts/:accountId/transactions', async (req, res) => {
     req.params, req.body
   )
 
+  /////////////////////////////////////////////////////////////////////////////
+  // TODO: 04/07/2020
+  // I WILL NEED TO CLEANUP THE LOGIC FOR USING THE USER-ID. RIGHT NOW, THE
+  // USER-ID IS REQUIRED IN THE API CALL. IN THE FUTURE, I WILL BE ABLE TO
+  // GET THE USER-ID FROM THE AUTHENTICATION CHECK AND I SHOULD USE THAT
+  // FOR VALIDATING THE ACCOUNT.
+  /////////////////////////////////////////////////////////////////////////////
+
+  let accountId = req.params.accountId    // Get account id from url
+
+  if(!ObjectID.isValid(accountId)) {
+    logger.error('Invalid account id=[%s]', accountId)
+    return res.status(404).send({
+      code:     404,
+      message:  'Account not found',
+    })
+  }
+
   try {
     let user    = await currentUser()
 
+    let userId  = req.body.userId
+    let account = await Account.findOne({
+      _id:      accountId,
+      userId:   userId,
+    })
+
+    if(account == null) {
+      logger.error('User id=[%s] trying access account id=[%s]', user._id, accountId)
+      return res.status(404).send({
+        code:     404,
+        message:  'Account not found'
+      })
+    }
+
     let transaction = new Transaction({
       description:  req.body.description,
-      amount:       req.body.amount || 0,
-      date:         req.body.date ? new Date(req.body.date) : new Date(),
-      userId:       req.body.userId,
-      accountId:    req.params.accountId
+      charge:       req.body.charge   || 'debit',
+      amount:       req.body.amount   || 0,
+      date:         req.body.date     ? new Date(req.body.date) : new Date(),
+      category:     req.body.category || '', 
+      userId:       userId,                 
+      accountId:    accountId      
     })
     logger.debug('Built transaction= %o', transaction)
 
@@ -138,8 +196,45 @@ router.post('/v1/accounts/:accountId/transactions', async (req, res) => {
     res.status(201).send(result)
   }
   catch(err) {
-    logger.error('Failed to save transaction, err= %o', err)
-    res.status(400).send(err)
+    logger.error('Failed to create transaction, err= %o', err)
+    let errorResponse = {}
+    let postErrors    = []
+    if(err instanceof mongoose.Error.ValidationError) {
+      /**
+       * Loop through all of the errors and standardize on error format:
+       * { code: 7xx, type: '', path: 'form-field, message: ''}
+       */
+      Object.keys(err.errors).forEach( (formField) => {
+        if(err.errors[formField] instanceof mongoose.Error.ValidatorError) {
+          postErrors.push({
+            code:     701, 
+            category: 'ValidationError', 
+            ...err.errors[formField].properties
+          })
+        }
+        else if(err.errors[formField] instanceof mongoose.Error.CastError) {
+          postErrors.push({
+            code:         701,
+            category:     'ValidationError', 
+            path:         err.errors[formField].path,
+            type:         'cast-error',
+            value:        err.errors[formField].value,
+            shortMessage: err.errors[formField].stringValue,
+            message:      err.errors[formField].message,
+          })
+        }
+        else {
+          logger.error(`[error] Unknown mongoose.Error.ValidationError err= `, err)
+          postErrors.push({code: 799, message: "Unknown mongoose validation error"})
+        }
+      })
+      errorResponse = {errors: postErrors}
+    }
+    else {
+      logger.error(`[error] Failed to create transaction, err= `, err)
+      errorResponse = {errors: err}
+    }
+    res.status(400).send(errorResponse)
   }
 })
 

@@ -43,6 +43,8 @@ let transactionsData = [
     _id:            new ObjectID(),
     description:    'Target',
     date:           new Date('3/24/2020').toISOString(),
+    charge:         'debit',
+    amount:         75.00,
     accountId:      accountsData[0]._id,
     userId:         accountsData[0].userId,
   },
@@ -50,6 +52,8 @@ let transactionsData = [
     _id:            new ObjectID(),
     description:    'Haystack Pizza',
     date:           new Date('3/17/2020').toISOString(),
+    charge:         'debit',
+    amount:         45.00,
     accountId:      accountsData[0]._id,
     userId:         accountsData[0].userId,
   },
@@ -70,7 +74,7 @@ describe('Transactions API', () => {
   beforeEach( async () => {
     try {
       await User.deleteMany({})
-      let users   = await User.insertMany(usersData)
+      let users = await User.insertMany(usersData)
   
       await Account.deleteMany({})
       let accounts = await Account.insertMany(accountsData)
@@ -155,6 +159,23 @@ describe('Transactions API', () => {
       request(app)
         .get(`/api/v1/accounts/${invalidAccountId}/transactions`)
         .expect(404)
+        .expect( (res) => {
+          expect(res.body.code).to.equal(404)
+          expect(res.body.message).to.match(/Account not found/)
+        })
+        .end(done)
+    })
+
+    it('Returns 404 for an account not in the DB', (done) => {
+      let missingAccountId = new ObjectID().toHexString()
+
+      request(app)
+        .get(`/api/v1/accounts/${missingAccountId}/transactions`)
+        .expect(404)
+        .expect( (res) => {
+          expect(res.body.code).to.equal(404)
+          expect(res.body.message).to.match(/Account not found/)
+        })
         .end(done)
     })
 
@@ -182,6 +203,7 @@ describe('Transactions API', () => {
       transaction = {
         _id:          new ObjectID().toHexString(),
         description:  'Test Transaction',
+        charge:       'debit',
         amount:       40.25,
         date:         new Date('3/20/2020').toISOString(),
         userId:       accountsData[0].userId.toHexString(),
@@ -199,14 +221,43 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Returns a 400 error if the userId is not defined', (done) =>{
-      // Remove userId from the transaction
-      delete transaction.userId
+    it('Returns a 400 error for an invalid charge type', (done) => {
+      // Change the charge type from 'debit'
+      let badTransaction = {...transaction, charge: 'BAD'}
 
       request(app)
-        .post('/api/v1/accounts/${accountId}/transactions')
-        .send(transaction)
+        .post(`/api/v1/accounts/${accountId}/transactions`)
+        .send(badTransaction)
         .expect(400)
+        .end(done)
+    })
+
+    it('Returns a 404 error for an invalid accountId', (done) => {
+      let badAccountId = 'BAD'
+
+      request(app)
+        .post(`/api/v1/accounts/${badAccountId}/transactions`)
+        .send(transaction)
+        .expect(404)
+        .expect( (res) => {
+          expect(res.body.code).to.equal(404)
+          expect(res.body.message).to.equal('Account not found')
+        })
+        .end(done)
+    })
+
+    it('Returns a 404 error if accountId is not found in DB', (done) => {
+      let missingAccountId = new ObjectID().toHexString()
+
+      request(app)
+        .post(`/api/v1/accounts/${missingAccountId}/transactions`)
+        .send(transaction)
+        .expect(404)
+        .expect( (res) => {
+          //* console.log(`[debug] post error response= `, JSON.stringify(res.body, undefined, 2))
+          expect(res.body.code).to.equal(404)
+          expect(res.body.message).to.match(/Account not found/)
+        })
         .end(done)
     })
 
