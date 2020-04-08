@@ -20,11 +20,11 @@ const TransactionsAPI = {
       try {
         let result = await axios.get(url)
 
-        console.log(`[debug] Account Id=[${accountId}], transactions = `, result.data)
+        //* console.log(`[debug] Account Id=[${accountId}], transactions = `, result.data)
         resolve(result.data.transactions);
       }
       catch(error) {
-        console.log(`[error] Failed to fetch transactions for account id=[${accountId}], error= `, error)
+        //* console.log(`[error] Failed to fetch transactions for account id=[${accountId}], error= `, error)
         reject({
           server: {
             code:     500,
