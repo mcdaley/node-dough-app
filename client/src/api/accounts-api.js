@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// client/src/api/accounts.js
+// client/src/api/accounts-api.js
 //-----------------------------------------------------------------------------
 import axios from 'axios'
 
@@ -8,7 +8,8 @@ import axios from 'axios'
  */
 const AccountsAPI = {
   /**
-   * Return all of the users accounts.
+   * Return all of the users accounts, calls the following api:
+   * GET /api/v1/accounts
    */
   get() {
     return new Promise( async (resolve, reject) => {
@@ -24,6 +25,34 @@ const AccountsAPI = {
           server: {
             code:     500,
             message:  'Unable to get your accounts',
+          }
+        })
+      }
+    })
+  },
+  /**
+   * Find and return a user's account, calls the following api:
+   * GET /api/v1/accounts/:id
+   * 
+   * @param {string} id - Account ID. 
+   */
+  find(id) {
+    return new Promise( async (resolve, reject) => {
+      if(!id) reject({ accountId: {code: 400, message: 'Account Id is required'} })
+
+      const url = `http://localhost:5000/api/v1/accounts/${id}`
+      try {
+        const result  = await axios.get(url);
+        
+        console.log(`[debug] find(${id}), results = `, result.data)
+        resolve(result.data.account);
+      }
+      catch (err) {
+        console.log(`[error] Failed to retrieve accounts w/ id=[${id}], error= `, err)
+        reject({
+          server: {
+            code:     500,
+            message:  `Unable to get account, id=[${id}]`,
           }
         })
       }

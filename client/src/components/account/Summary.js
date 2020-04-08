@@ -32,7 +32,7 @@ const AccountSummary = (props) => {
    */
   const handleClick = (evt) => {
     //* alert(`Clicked on account=  ${name}`)
-    history.push(`/accounts/details/${_id}`)
+    history.push(`/accounts/show/${_id}`)
   }
 
   // Render the account summary

@@ -23,11 +23,11 @@ function App() {
         {/* A <Switch> looks through its children <Route>s and
             renders the first one that matches the current URL. */}
         <Switch>
-          <Route path="/home"                 exact component={Home} />
-          <Route path="/accounts/list"        exact component={PagesAccountsIndex} />
-          <Route path="/accounts/details/:id" exact component={PagesAccountsShow} />
-          <Route path="/about"                exact component={About} />
-          <Route path="/"                     component={Home} />
+          <Route path="/home"               exact component={Home} />
+          <Route path="/accounts/list"      exact component={PagesAccountsIndex} />
+          <Route path="/accounts/show/:id"  exact component={PagesAccountsShow} />
+          <Route path="/about"              exact component={About} />
+          <Route path="/"                   component={Home} />
         </Switch>
       </Router>
     </div>
