@@ -27,6 +27,16 @@ const transactionsData = [
     amount:       55.55,
     accountId:    '99',
     userId:       'Me'
+  },
+  { 
+    _id:          '3',
+    date:         '2020-04-01T07:00:00.000Z',
+    description:  'Transaction Test Credit', 
+    category:     'Salary', 
+    charge:       'credit', 
+    amount:       300.00,
+    accountId:    '99',
+    userId:       'Me'
   }
 ]
 
@@ -46,9 +56,13 @@ describe('Transactions API', () => {
       })
 
       const transactions = await TransactionsAPI.findByAccountId(transactionsData[0].accountId)
-      expect(transactions.length).toBe(2)
+      expect(transactions.length).toBe(3)
       expect(transactions[0].description).toBe(transactionsData[0].description)
-      expect(transactions[1].description).toBe(transactionsData[1].description)
+      expect(transactions[0].debit).toBe(transactionsData[0].amount)
+      expect(transactions[0].credit).toBe('')
+      expect(transactions[2].description).toBe(transactionsData[2].description)
+      expect(transactions[2].credit).toBe(transactionsData[2].amount)
+      expect(transactions[2].debit).toBe('')
     })
   })
 

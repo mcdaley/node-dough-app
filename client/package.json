@@ -36,7 +36,9 @@
     "axios": "^0.19.2",
     "bootstrap": "^4.4.1",
     "formik": "^2.1.4",
+    "numeral": "^2.0.6",
     "react-bootstrap": "^1.0.0",
+    "react-bootstrap-table-next": "^4.0.0",
     "react-datepicker": "^2.14.1",
     "react-router-dom": "^5.1.2",
     "yup": "^0.28.3"

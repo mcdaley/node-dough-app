@@ -14,6 +14,7 @@ import { useParams, useHistory }        from 'react-router-dom'
 import AccountsAPI                      from '../../api/accounts-api'
 import TransactionsAPI                  from '../../api/transactions-api'
 import AccountSummary                   from '../../components/account/Summary'
+import TransactionGrid                  from '../../components/transaction/Grid'
 
 /**
  * 
@@ -74,9 +75,9 @@ const PagesAccountsShow = () => {
    * Render the account summary.
    */
   const renderAccountSummary = () => {
-    return account == null
-    ? null
-    : (
+    if(Object.keys(account).length === 0 || account == null) return null
+    
+    return (
       <AccountSummary
         _id                 = {account._id}
         name                = {account.name}
@@ -87,40 +88,13 @@ const PagesAccountsShow = () => {
   }
 
   /**
-   * Render the account transactions.
+   * Render the transactions grid
    */
   const renderTransactions = () => {
-    if(transactions == null) return null
-
-    function rows() {
-      return transactions.map( (txn) => {
-        return (
-          <tr>
-            <td>{txn.date}</td>
-            <td>{txn.description}</td>
-            <td>{txn.category}</td>
-            <td>{txn.charge}</td>
-            <td>{txn.amount}</td>
-          </tr>
-        )
-      })
-    }
+    if(transactions.length === 0) return null
 
     return (
-      <Table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Category</th>
-            <th>Charge</th>
-            <th>Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows()}
-        </tbody>
-      </Table>
+      <TransactionGrid transactions={transactions} />
     )
   }
 
