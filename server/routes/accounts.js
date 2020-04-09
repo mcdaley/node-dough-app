@@ -6,6 +6,7 @@ const mongoose        = require('mongoose')
 const { ObjectID }    = require('mongodb')
 
 const Account         = require('../models/account')
+const Transaction     = require('../models/transaction')
 const logger          = require('../config/winston')
 const { currentUser } = require('../utils/current-user-helper')
 
@@ -69,8 +70,32 @@ router.get('/v1/accounts/:id', async (req, res) => {
 router.post('/v1/accounts', async (req, res) => {
   logger.info('POST/api/v1/accounts, request body= %o', req.body)
 
+  /**
+   * Inner function to create a transaction to record the opening balance
+   * when an account is created.
+   * @param  {Account}     account - account model saved to mongodb.
+   * @return {Transaction} Transaction for the opening balance.
+   */
+  async function createOpeningBalanceTransaction(account) {
+    
+    let transaction = new Transaction({
+      date:         account.asOfDate,
+      description:  'Opening Balance',
+      category:     'Balance',
+      charge:       account.type === 'Credit Card' ? 'debit' : 'credit',
+      amount:       account.balance,
+      accountId:    account._id,
+      userId:       account.userId,
+    })
+
+    const  result = await transaction.save()
+    return result
+  }
+
   try {
     let user    = await currentUser()    // Simulate authentication
+
+    // Create the account.
     let account = new Account({
       name:               req.body.name,
       userId:             user._id,
@@ -79,11 +104,14 @@ router.post('/v1/accounts', async (req, res) => {
       type:               req.body.type    || 'Checking',
       balance:            req.body.balance || '0',
     })
-    let doc     = await account.save()
-    
-    logger.debug('Successfully created account=[%o]`', doc)
 
-    res.status(200).send(doc)
+    const result = await account.save() 
+    logger.debug('Successfully created account=[%o]', result)
+
+    const transaction = createOpeningBalanceTransaction(result)
+    logger.debug('Successfully created initial balance transaction=[%o]', transaction)
+
+    res.status(201).send(result)
   }
   catch(err) {
     logger.error('Failed to create account, err= %o', err)

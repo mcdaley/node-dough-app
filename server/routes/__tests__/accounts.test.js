@@ -8,6 +8,7 @@ const { ObjectID }  = require('mongodb')
 const { app }       = require('../../../index')
 const User          = require('../../models/user')
 const Account       = require('../../models/account')
+const Transaction   = require('../../models/transaction')
 
 /*
  * Create accounts test data
@@ -41,6 +42,8 @@ beforeEach( async () => {
 
     await Account.deleteMany({})
     let results = await Account.insertMany(accountsData)
+
+    await Transaction.deleteMany({})
   }
   catch(err) {
     console.log(`[ERROR] Failed to create account test data, err= `, err)
@@ -190,7 +193,7 @@ describe('Accounts API', () => {
       request(app)
         .post('/api/v1/accounts')
         .send(account)
-        .expect(200)
+        .expect(201)
         .expect( (res) => {
           expect(res.body.name).to.equal(account.name)
         })
@@ -199,17 +202,28 @@ describe('Accounts API', () => {
             return done(err)
           }
           
+          // Verify account and opening balance transaction are written to DB
           Account
-            .findOne({name: 'Test Credit Card', userId: account.userId})
+            .findOne({_id: res.body._id, userId: account.userId})
             .then( (result) => {
               expect(result.name).to.equal(account.name)
               expect(result.type).to.equal(account.type)
               expect(result.financialInstitute).to.equal(account.financialInstitute)
               expect(result.balance).to.equal(account.balance)
               expect(result.asOfDate.toISOString()).to.equal(account.asOfDate)
-              done()
             })
             .catch( (err) => done(err) )
+
+          Transaction
+            .findOne({accountId: res.body._id, userId: account.userId})
+            .then( (result) => {
+              expect(result.date.toISOString()).to.equal(account.asOfDate)
+              expect(result.description).to.match(/Opening Balance/)
+              expect(result.amount).to.equal(account.balance)
+            })
+            .catch( (err) => done(err) )
+          
+          done()
         })
     })
   })
@@ -304,7 +318,7 @@ describe('Accounts API', () => {
    */
   describe('DELETE /api/v1/accounts/:id', () => {
     it('Returns a 404 status if the account is not found', (done) => {
-      let id      = new ObjectID().toHexString()
+      let id = new ObjectID().toHexString()
 
       request(app)
         .delete(`/api/v1/accounts/${id}`)
@@ -313,7 +327,7 @@ describe('Accounts API', () => {
     })
 
     it('Returns a 400 error if the account ID is invalid', (done) => {
-      let id      = 'invalid-account-id'
+      let id = 'invalid-account-id'
 
       request(app)
         .delete(`/api/v1/accounts/${id}`)
