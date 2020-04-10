@@ -24,16 +24,17 @@ let usersData = [
 let accountsData = [
   { 
     _id:                new ObjectID(), 
-    name:               "Fergie Checking Account", 
+    name:               "Test Checking Account", 
     financialInstitute: 'USAA',
-    initialBalance:     500,
+    balance:            500,
     userId:             usersData[0]._id,
   },
   { 
     _id:                new ObjectID(), 
-    name:               "Joe's Savings Account",
+    name:               "Test Credit Card",
     financialInstitute: 'NFCU',
-    type:               'Savings',
+    type:               'Credit Card',
+    balance:            -1000,
     userId:             usersData[0]._id,
   }
 ]
@@ -44,7 +45,7 @@ let transactionsData = [
     description:    'Target',
     date:           new Date('3/24/2020').toISOString(),
     charge:         'debit',
-    amount:         75.00,
+    amount:         -75.00,
     accountId:      accountsData[0]._id,
     userId:         accountsData[0].userId,
   },
@@ -53,16 +54,28 @@ let transactionsData = [
     description:    'Haystack Pizza',
     date:           new Date('3/17/2020').toISOString(),
     charge:         'debit',
-    amount:         45.00,
+    amount:         -45.00,
     accountId:      accountsData[0]._id,
     userId:         accountsData[0].userId,
   },
   {
     _id:            new ObjectID(),
     description:    'Whole Foods',
+    date:           new Date('3/17/2020').toISOString(),
+    amount:         0,
     accountId:      accountsData[0]._id,
     userId:         accountsData[0].userId,
   },
+  {
+    _id:            new ObjectID(),
+    description:    'Opening Balance',
+    date:           new Date('3/01/2020').toISOString(),
+    category:       'Balance',
+    charge:         'credit',
+    amount:         500,
+    accountId:      accountsData[0]._id,
+    userId:         accountsData[0].userId,
+  }
 ]
 
 /*
@@ -131,7 +144,7 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Returns the transaction', (done) => {
+    it('Returns array of transactions', (done) => {
       let accountId = accountsData[0]._id.toHexString()
       let txnId     = transactionsData[1]._id.toHexString()
 
@@ -186,7 +199,25 @@ describe('Transactions API', () => {
         .get(`/api/v1/accounts/${accountId}/transactions`)
         .expect(200)
         .expect( (res) => {
-          expect(res.body.transactions.length).to.equal(3)
+          expect(res.body.transactions.length).to.equal(4)
+        })
+        .end(done)
+    })
+
+    it('Calculates the running balance', (done) => {
+      let accountId = accountsData[0]._id.toHexString()
+
+      request(app)
+        .get(`/api/v1/accounts/${accountId}/transactions`)
+        .expect(200)
+        .expect( (res) => {
+          let {transactions}  = res.body
+          let runningBalances = [380, 455, 500, 500]
+
+          expect(transactions.length).to.equal(4)
+          for(let i = 0; i < transactions.length; ++i) {
+            expect(transactions[i].balance).to.equal(runningBalances[i])
+          }
         })
         .end(done)
     })
@@ -221,17 +252,6 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Returns a 400 error for an invalid charge type', (done) => {
-      // Change the charge type from 'debit'
-      let badTransaction = {...transaction, charge: 'BAD'}
-
-      request(app)
-        .post(`/api/v1/accounts/${accountId}/transactions`)
-        .send(badTransaction)
-        .expect(400)
-        .end(done)
-    })
-
     it('Returns a 404 error for an invalid accountId', (done) => {
       let badAccountId = 'BAD'
 
@@ -261,7 +281,7 @@ describe('Transactions API', () => {
         .end(done)
     })
 
-    it('Creates a transaction', (done) => {
+    it('Creates a debit transaction', (done) => {
       
       request(app)
         .post(`/api/v1/accounts/${accountId}/transactions`)
@@ -269,7 +289,7 @@ describe('Transactions API', () => {
         .expect(201)
         .expect( (res) => {
           expect(res.body.description).to.equal(transaction.description)
-          expect(res.body.amount).to.equal(transaction.amount)
+          expect(res.body.amount).to.equal(-1 * transaction.amount)
           expect(res.body.accountId).to.equal(accountId)
           expect(res.body.date).to.equal(transaction.date)
           expect(res.body.userId).to.equal(transaction.userId)
@@ -286,7 +306,7 @@ describe('Transactions API', () => {
             })
             .then( (result) => {
               expect(result.description).to.equal(transaction.description)
-              expect(result.amount).to.equal(result.amount)
+              expect(result.amount).to.equal(-1 * Math.abs(transaction.amount))
               expect(result.date.toISOString()).to.equal(transaction.date)
               expect(result.accountId.toHexString()).to.equal(accountId)
               expect(result.userId.toHexString()).to.equal(transaction.userId)
@@ -294,6 +314,71 @@ describe('Transactions API', () => {
             })
             .catch( (err) => done(err) )
         })
+    })
+
+    it('Creates a credit transaction', (done) => {
+      let creditTxn = {...transaction, charge: 'credit', amount: 75.00}
+      
+      request(app)
+        .post(`/api/v1/accounts/${accountId}/transactions`)
+        .send(creditTxn)
+        .expect(201)
+        .expect( (res) => {
+          expect(res.body.description).to.equal(creditTxn.description)
+          expect(res.body.amount).to.equal(creditTxn.amount)
+          expect(res.body.accountId).to.equal(accountId)
+          expect(res.body.date).to.equal(creditTxn.date)
+          expect(res.body.userId).to.equal(creditTxn.userId)
+        })
+        .end( (err, res) => {
+          if(err) {
+            return done(err)
+          }
+
+          Transaction
+            .findOne({
+              description:  creditTxn.description, 
+              accountId:    accountId
+            })
+            .then( (result) => {
+              expect(result.description).to.equal(creditTxn.description)
+              expect(result.amount).to.equal(creditTxn.amount)
+              expect(result.date.toISOString()).to.equal(creditTxn.date)
+              expect(result.accountId.toHexString()).to.equal(accountId)
+              expect(result.userId.toHexString()).to.equal(creditTxn.userId)
+              done()
+            })
+            .catch( (err) => done(err) )
+        })
+    })
+
+    it('Creates default debit transaction for an invalid charge and amount', (done) => {
+      // Change the charge type from 'debit'
+      let badTxn = {...transaction, charge: 'BAD', amount: 'NaN'}
+
+      request(app)
+        .post(`/api/v1/accounts/${accountId}/transactions`)
+        .send(badTxn)
+        .expect(201)
+        .expect( (res, err) => {
+          if(err) { return done(err) }
+
+          Transaction
+            .findOne({
+              description:  badTxn.description, 
+              accountId:    accountId
+            })
+            .then( (result) => {
+              expect(result.description).to.equal(badTxn.description)
+              expect(result.charge).to.equal('debit')
+              expect(result.amount).to.equal(0)
+              expect(result.date.toISOString()).to.equal(badTxn.date)
+              expect(result.accountId.toHexString()).to.equal(accountId)
+              expect(result.userId.toHexString()).to.equal(badTxn.userId)
+            })
+            .catch( (err) => done(err) )
+        })
+        .end(done)
     })
   })
 

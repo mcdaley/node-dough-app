@@ -20,16 +20,26 @@ let usersData = [
 let accountsData = [
   { 
     _id:                new ObjectID(), 
-    name:               "Fergie Checking Account",
+    name:               "Test Checking Account",
     financialInstitute: 'USAA',
-    initialBalance:     500,
+    type:               'Checking',
+    balance:            500,
     userId:             usersData[0]._id,
   },
   { 
     _id:                new ObjectID(), 
-    name:               "Joe's Savings Account",
+    name:               "Test Savings Account",
     financialInstitute: 'NFCU',
     type:               'Savings',
+    asOfDate:           new Date().toISOString(),
+    userId:             usersData[0]._id,
+  },
+  { 
+    _id:                new ObjectID(), 
+    name:               "Test Credit Card",
+    financialInstitute: 'Wells Fargo',
+    type:               'Credit Card',
+    balance:            750,
     asOfDate:           new Date().toISOString(),
     userId:             usersData[0]._id,
   }
@@ -60,7 +70,7 @@ describe('Accounts API', () => {
         .get('/api/v1/accounts')
         .expect(200)
         .expect( (res) => {
-          expect(res.body.accounts.length).to.equal(2)
+          expect(res.body.accounts.length).to.equal(3)
         })
         .end(done)        
     })
@@ -161,7 +171,7 @@ describe('Accounts API', () => {
         .end(done)
     })
 
-    it('Returns an error for invalid balance', (done) => {
+    it('Returns an error for invalid asOfDate', (done) => {
       let account       = {...accountsData[1]}
       account.asOfDate  = 'Invalid-Date'
 
@@ -179,16 +189,8 @@ describe('Accounts API', () => {
         .end(done)
     })
 
-    it('Creates an account', (done) => {
-      let account = {
-        _id:                new ObjectID().toHexString(),
-        name:               'Test Credit Card',
-        financialInstitute: 'USAA',
-        type:               'Credit Card',
-        balance:            -750.00,
-        asOfDate:           new Date('3/17/2020').toISOString(),
-        userId:             usersData[0]._id,
-      }
+    it('Creates a Credit Card Account', (done) => {
+      let account = {...accountsData[2]}
 
       request(app)
         .post('/api/v1/accounts')
@@ -196,6 +198,7 @@ describe('Accounts API', () => {
         .expect(201)
         .expect( (res) => {
           expect(res.body.name).to.equal(account.name)
+          expect(res.body.balance).to.equal(-1 * Math.abs(account.balance))
         })
         .end( (err, res) => {
           if(err) {
@@ -209,7 +212,7 @@ describe('Accounts API', () => {
               expect(result.name).to.equal(account.name)
               expect(result.type).to.equal(account.type)
               expect(result.financialInstitute).to.equal(account.financialInstitute)
-              expect(result.balance).to.equal(account.balance)
+              expect(result.balance).to.equal(-1 * Math.abs(account.balance))
               expect(result.asOfDate.toISOString()).to.equal(account.asOfDate)
             })
             .catch( (err) => done(err) )
@@ -219,7 +222,56 @@ describe('Accounts API', () => {
             .then( (result) => {
               expect(result.date.toISOString()).to.equal(account.asOfDate)
               expect(result.description).to.match(/Opening Balance/)
-              expect(result.amount).to.equal(account.balance)
+              expect(result.amount).to.equal(-1 * Math.abs(account.balance))
+            })
+            .catch( (err) => done(err) )
+          
+          done()
+        })
+    })
+
+    it('Creates a Checking Account', (done) => {
+      let account = {...accountsData[0]}
+
+      request(app)
+        .post('/api/v1/accounts')
+        .send(account)
+        .expect(201)
+        .expect( (res) => {
+          expect(res.body.name).to.equal(account.name)
+          expect(res.body.balance).to.equal(Math.abs(account.balance))
+        })
+        .end( (err, res) => {
+          if(err) {
+            return done(err)
+          }
+
+          /////////////////////////////////////////////////////////////////////
+          // TODO: 04/10/2020
+          // NEED TO CHECK THAT THE asOfDate IS EQUAL TO TODAY, SINCE I DO
+          // NOT SET IT IN THE TEST DATA.
+          /////////////////////////////////////////////////////////////////////
+          
+          // Verify account and opening balance transaction are written to DB
+          Account
+            .findOne({_id: res.body._id, userId: account.userId})
+            .then( (result) => {
+              expect(result.name).to.equal(account.name)
+              expect(result.type).to.equal(account.type)
+              expect(result.financialInstitute).to.equal(account.financialInstitute)
+              expect(result.balance).to.equal(Math.abs(account.balance))
+              expect(result.asOfDate.getTime()).to.be.lessThan(Date.now())
+              expect(result.asOfDate.getTime()).to.be.greaterThan(Date.now() - 3600)
+            })
+            .catch( (err) => done(err) )
+
+          Transaction
+            .findOne({accountId: res.body._id, userId: account.userId})
+            .then( (result) => {
+              expect(result.date.getTime()).to.be.lessThan(Date.now())
+              expect(result.date.getTime()).to.be.greaterThan(Date.now() - 3600)
+              expect(result.description).to.match(/Opening Balance/)
+              expect(result.amount).to.equal(Math.abs(account.balance))
             })
             .catch( (err) => done(err) )
           

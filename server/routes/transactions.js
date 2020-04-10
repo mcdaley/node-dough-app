@@ -84,6 +84,29 @@ router.get('/v1/accounts/:accountId/transactions', async (req, res) => {
     'GET /api/v1/accounts/:accountId/transactions, params= %o', req.params
   )
 
+  /**
+   * Calculate the running balance for all of the transactions in the account
+   * and return the updated array of transactions w/ the running balance for
+   * each transaction.
+   * 
+   * The calculation assumes the transactions are returned sorted by
+   * descending date order.
+   * 
+   * @param   {object} account 
+   * @param   {array} transactions
+   * @returns Array of transactions w/ running balance for each transaction.
+   */
+  function runningBalance(account, transactions) {
+    let rear                   = transactions.length - 1
+    transactions[rear].balance = transactions[rear].amount
+
+    for(let i = rear - 1; i >= 0; --i) {
+      transactions[i].balance  = transactions[i+1].balance + transactions[i].amount
+    }
+
+    return transactions
+  }
+
   /////////////////////////////////////////////////////////////////////////////
   // TODO: 04/07/2020
   // NEED TO ENSURE THE USER CAN ONLY RETURN TRANSACTIONS FOR AN ACCOUNT
@@ -118,13 +141,16 @@ router.get('/v1/accounts/:accountId/transactions', async (req, res) => {
       })
     }
 
-    let transactions  = await Transaction.find({accountId: accountId})
+    let transactions = await Transaction.find({accountId: accountId}).sort({ date: -1})
+    transactions     = runningBalance(account, transactions)
+
+    logger.debug('Transactions w/ balance= [%o]', transactions)
 
     logger.debug(
       'Retrieved [%d] transactions for accountId=[%s], %o', 
       transactions.length, accountId, transactions
     )
-    res.status(200).send({transactions})
+    res.status(200).send({account, transactions})
   }
   catch(err) {
     logger.error(
@@ -168,7 +194,8 @@ router.post('/v1/accounts/:accountId/transactions', async (req, res) => {
     let userId  = req.body.userId
     let account = await Account.findOne({
       _id:      accountId,
-      userId:   userId,
+      //* userId:   userId,
+      userId:   user._id,
     })
 
     if(account == null) {
@@ -179,13 +206,43 @@ router.post('/v1/accounts/:accountId/transactions', async (req, res) => {
       })
     }
 
+    /**
+     * IIEF to set the charge type and amount for a transaction. If the transaction is a
+     * debit then the amount is negative and if the transaction is a credit then
+     * the amount is positive. If the user submits and invalid charge then it defaults to
+     * credit and if the user submits an invalid amount then it defaults to 0.
+     * 
+     * @param  charge - Either 'debit' or 'credit'
+     * @param  amount - Transaction total
+     * @return Returns an object with the charge and amount.
+     */
+    let {charge, amount} = (function calculateAmount(charge = 'debit', amount = 0) { 
+      if(charge !== 'debit' && charge !== 'credit') { charge = 'debit' }
+      if(isNaN(amount)) { amount = 0}
+
+      let payment = {}
+      if(amount === 0) {
+        payment.charge = charge
+        payment.amount = 0
+      }
+      else if(charge === 'debit') {
+        payment.charge = 'debit'
+        payment.amount = -1 * Math.abs(amount)
+      }
+      else {
+        payment.charge = 'credit'
+        payment.amount = Math.abs(amount)
+      }
+      return payment
+    })(req.body.charge, req.body.amount)
+
     let transaction = new Transaction({
       description:  req.body.description,
-      charge:       req.body.charge   || 'debit',
-      amount:       req.body.amount   || 0,
+      charge:       charge,
+      amount:       amount,
       date:         req.body.date     ? new Date(req.body.date) : new Date(),
       category:     req.body.category || '', 
-      userId:       userId,                 
+      userId:       user._id,                 
       accountId:    accountId      
     })
     logger.debug('Built transaction= %o', transaction)

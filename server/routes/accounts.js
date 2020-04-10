@@ -83,13 +83,31 @@ router.post('/v1/accounts', async (req, res) => {
       description:  'Opening Balance',
       category:     'Balance',
       charge:       account.type === 'Credit Card' ? 'debit' : 'credit',
-      amount:       account.balance,
+      amount:       account.type === 'Credit Card' ? -1 * Math.abs(account.balance) : Math.abs(account.balance),
       accountId:    account._id,
       userId:       account.userId,
     })
 
     const  result = await transaction.save()
     return result
+  }
+
+  /**
+   * Inner function to calculate the opening balance. The balance is negative for
+   * credit cards and positive for bank accounts. If the balance is not specified
+   * then it is 0.
+   * @param {*} balance 
+   */
+  function getBalance() {
+    if(!req.body.balance) {
+      return 0
+    }
+    else if(req.body.type === 'Credit Card') {
+      return -1 * Math.abs(req.body.balance)
+    }
+    else {
+      return Math.abs(req.body.balance)
+    }
   }
 
   try {
@@ -102,7 +120,7 @@ router.post('/v1/accounts', async (req, res) => {
       financialInstitute: req.body.financialInstitute,
       asOfDate:           req.body.asOfDate ? new Date(req.body.asOfDate) : new Date(),
       type:               req.body.type    || 'Checking',
-      balance:            req.body.balance || '0',
+      balance:            getBalance(),
     })
 
     const result = await account.save() 

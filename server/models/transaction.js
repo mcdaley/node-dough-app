@@ -26,6 +26,10 @@ const transactionSchema = new mongoose.Schema({
   amount: {
     type:       Number,
   },
+  balance: {
+    type:       Number,
+    default:    0,
+  },
   accountId: {
     type:       mongoose.Schema.Types.ObjectId,
     required:   [true, 'Account is required'],
