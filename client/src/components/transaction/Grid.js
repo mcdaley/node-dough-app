@@ -53,6 +53,13 @@ const TransactionGrid = (props) => {
       align:        'right',
       headerAlign:  'right'
     },
+    {
+      dataField:    'balance',
+      text:         'Balance',
+      formatter:    (num) => num === '' ? num : numeral(num).format('$0,0.00'),
+      align:        'right',
+      headerAlign:  'right'
+    },
   ]
 
   /**
