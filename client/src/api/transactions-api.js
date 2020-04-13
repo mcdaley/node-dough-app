@@ -23,7 +23,7 @@ const TransactionsAPI = {
       try {
         let result      = await axios.post(url, params)
         let transaction = setCreditAndDebitFields(result.data)
-        console.log(`[debug] Created transaction for account=[${accountId}], `, transaction)
+        //* console.log(`[debug] Created transaction for account=[${accountId}], `, transaction)
 
         resolve({transaction})
       }
