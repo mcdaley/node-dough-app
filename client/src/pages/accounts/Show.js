@@ -15,6 +15,8 @@ import AccountsAPI                      from '../../api/accounts-api'
 import TransactionsAPI                  from '../../api/transactions-api'
 import AccountSummary                   from '../../components/account/Summary'
 import TransactionGrid                  from '../../components/transaction/Grid'
+import TransactionForm                  from '../../components/transaction/Form'
+import { runningBalance }               from '../../utils/transactions-helper'
 
 /**
  * 
@@ -72,6 +74,33 @@ const PagesAccountsShow = () => {
   const handleClick = () => history.goBack()
 
   /**
+   * Callback to handle the creation of a new transaction. It updates
+   * the transactions array w/ the new transaction to re-render the
+   * transaction data grid.
+   * 
+   * @param {Object} transaction - Transaction that was just created in DB
+   */
+  const onCreateTransaction = ({transaction}) => {
+    console.debug(`[debug] Created transaction= `, transaction)
+
+    let transactionList = buildTransactionList(transaction)
+    setTransactions(transactionList)
+  }
+
+  /**
+   * Sort the transactions and calculate the running balance for the account.
+   * @param {*} transaction - Transaction that was just created.
+   */
+  const buildTransactionList = (transaction) => {
+    let txnList = [...transactions, transaction].sort( (a,b) => {
+      return new Date(b.date) - new Date(a.date)
+    })
+    txnList = runningBalance(txnList)
+
+    return txnList
+  }
+
+  /**
    * Render the account summary.
    */
   const renderAccountSummary = () => {
@@ -83,6 +112,20 @@ const PagesAccountsShow = () => {
         name                = {account.name}
         financialInstitute  = {account.financialInstitute}
         balance             = {account.balance}
+      />
+    )
+  }
+
+  /**
+   * Render the form to create new account transactions.
+   */
+  const renderTransactionForm = () => {
+    if(Object.keys(account).length === 0 || account == null) return null
+
+    return (
+      <TransactionForm
+        accountId = {account._id}
+        onSubmit  = {onCreateTransaction}
       />
     )
   }
@@ -106,6 +149,11 @@ const PagesAccountsShow = () => {
       <Row>
         <Col>
           {renderAccountSummary()}
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          {renderTransactionForm()}
         </Col>
       </Row>
       <Row>
