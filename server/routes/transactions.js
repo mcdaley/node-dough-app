@@ -295,12 +295,126 @@ router.post('/v1/accounts/:accountId/transactions', async (req, res) => {
   }
 })
 
+/**
+ * PUT /api/v1/accounts/:accountId/transactions/:id
+ */
+router.put('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
+  logger.info(
+    'PUT /api/v1/accounts/:accountId/transactions/:id, params= %o, body= %o', 
+    req.params, req.body
+  )
+
+  let accountId     = req.params.accountId
+  let transactionId = req.params.id
+
+  // Verify accountId is a valid ObjectID
+  if(!ObjectID.isValid(accountId)) {
+    logger.error('Invalid account id=[%s]', accountId)
+    return res.status(404).send({
+      code:     404,
+      message:  'Transaction not found',
+    })
+  }
+
+  // Verify transactionId is a valid ObjectID
+  if(!ObjectID.isValid(transactionId)) {
+    logger.error('Invalid transaction id=[%s]', transactionId)
+    return res.status(404).send({
+      code:     404,
+      message:  'Transaction not found',
+    })
+  }
+
+  try {
+    let user    = await currentUser()
+    let query   = { _id: transactionId, accountId: accountId }
+    let update  = (function makeUpdateParams(body) {
+      let update = {}
+      Object.entries(body).forEach( (entry) => {
+        // Do not allow the accountId or userId to be updated.
+        if(entry[0] !== 'accountId' && entry[0] !== 'userId') {
+          update[entry[0]] = entry[1]
+        }
+      })
+      return update
+    })(req.body)
+    let options = { new: true, runValidators: true  }
+    
+    let result  = await Transaction.findOneAndUpdate(query, update, options)
+    if(result == null) {
+      return res.status(404).send({
+        code:     404,
+        message:  'Transaction not found',
+      })
+    }
+
+    logger.info(`Updated transaction for accountId[${accountId}], transaction= %o`, result)
+    res.status(200).send({
+      transaction: result
+    })
+  }
+  catch(err) {
+    logger.error('Failed to update the transaction, err= %o', err)
+    let errorResponse = {}
+    let postErrors    = []
+    if(err instanceof mongoose.Error.ValidationError) {
+      /**
+       * Loop through all of the errors and standardize on error format:
+       * { code: 7xx, type: '', path: 'form-field, message: ''}
+       */
+      Object.keys(err.errors).forEach( (formField) => {
+        if(err.errors[formField] instanceof mongoose.Error.ValidatorError) {
+          postErrors.push({
+            code:     701, 
+            category: 'ValidationError', 
+            ...err.errors[formField].properties
+          })
+        }
+        else if(err.errors[formField] instanceof mongoose.Error.CastError) {
+          postErrors.push({
+            code:         701,
+            category:     'ValidationError', 
+            path:         err.errors[formField].path,
+            type:         'cast-error',
+            value:        err.errors[formField].value,
+            shortMessage: err.errors[formField].stringValue,
+            message:      err.errors[formField].message,
+          })
+        }
+        else {
+          logger.error(`[error] Unknown mongoose.Error.ValidationError err= `, err)
+          postErrors.push({code: 799, message: "Unknown mongoose validation error"})
+        }
+      })
+
+      errorResponse = {errors: postErrors}
+    }
+    else if(err instanceof mongoose.Error.CastError) {
+      postErrors.push({
+        code:         701,
+        category:     'CastError', 
+        path:         err.path,
+        type:         'cast-error',
+        value:        err.value,
+        message:      err.message,
+      })
+
+      errorResponse = {errors: postErrors}
+    }
+    else {
+      logger.error(`[error] Failed to create transaction, err= `, err)
+      errorResponse = {errors: err}
+    }
+    res.status(400).send(errorResponse)
+  }
+})
+
 /*
  * DELETE /api/v1/accounts/:accountId/transactions/:id
  */
 router.delete('/v1/accounts/:accountId/transactions/:id', async (req, res) => {
   logger.info(
-    'DELETE /api/v1/accounts/:accountId/transactions, params= %o, body= %o', 
+    'DELETE /api/v1/accounts/:accountId/transactions/:id, params= %o, body= %o', 
     req.params, req.body
   )
 

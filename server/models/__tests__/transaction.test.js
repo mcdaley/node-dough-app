@@ -31,11 +31,13 @@ describe('Transaction', () => {
     })
 
     it('Requires a description', () => {
-      let transaction = new Transaction()
+      let transaction = new Transaction({
+        description:  '',
+      })
 
       transaction.validate( (err) => {
         expect(err.errors.description).to.exist
-        expect(err.errors.description.message).to.match(/Description is required/)
+        expect(err.errors.description.message).to.match(/description is required/i)
       })
     })
 
@@ -178,7 +180,7 @@ describe('Transaction', () => {
           expect(transactions.length).to.equal(3)
         })
 
-        it('Returns [] for account with zero transacions', async () => {
+        it('Returns [] for account with zero transactions', async () => {
           let query        = { accountId: new ObjectID().toHexString() }
           let transactions = await Transaction.find(query)
           expect(transactions.length).to.equal(0)

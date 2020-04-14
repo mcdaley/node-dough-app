@@ -252,6 +252,16 @@ describe('Transactions API', () => {
         .end(done)
     })
 
+    it('Returns a 400 error for an invalid date', (done) => {
+      transaction.date = 'invalid-date'
+
+      request(app)
+        .post(`/api/v1/accounts/${accountId}/transactions`)
+        .send(transaction)
+        .expect(400)
+        .end(done)
+    })
+
     it('Returns a 404 error for an invalid accountId', (done) => {
       let badAccountId = 'BAD'
 
@@ -380,6 +390,233 @@ describe('Transactions API', () => {
         })
         .end(done)
     })
+  })
+
+  /*
+   * PUT /api/v1/accounts/:accountId/transactions/:id
+   */
+  describe('PUT /api/v1/accounts/:accountId/transactions/:id', () => {
+    it('Returns a 404 error for an invalid accountId', (done) => {
+      let badAccountId  = 'BAD'
+      let transactionId = transactionsData[1]._id.toHexString()
+      let update        = {
+        description: 'Invalid accountID'
+      }
+
+      request(app)
+        .put(`/api/v1/accounts/${badAccountId}/transactions/${transactionId}`)
+        .send(update)
+        .expect(404)
+        .expect( (res) => {
+          expect(res.body.code).to.equal(404)
+          expect(res.body.message).to.equal('Transaction not found')
+        })
+        .end(done)
+    })
+
+    it('Returns a 404 error for a missing accountId', (done) => {
+      let badAccountId  = new ObjectID().toHexString()
+      let transactionId = transactionsData[1]._id.toHexString()
+      let update        = {
+        description: 'Missing accountID'
+      }
+
+      request(app)
+        .put(`/api/v1/accounts/${badAccountId}/transactions/${transactionId}`)
+        .send(update)
+        .expect(404)
+        .expect( (res) => {
+          expect(res.body.code).to.equal(404)
+          expect(res.body.message).to.equal('Transaction not found')
+        })
+        .end(done)
+    })
+
+    it('Returns a 404 error for an invalid transactionId', (done) => {
+      let transactionId = 'invalid-transaction-id'
+      let accountId     = accountsData[0]._id.toHexString()
+      let update        = {
+        description: 'Invalid transactionId'
+      }
+
+      request(app)
+        .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
+        .send(update)
+        .expect(404)
+        .expect( (res) => {
+          expect(res.body.code).to.equal(404)
+          expect(res.body.message).to.equal('Transaction not found')
+        })
+        .end(done)
+    })
+
+    it('Returns a 404 error for a missing transactionId', (done) => {
+      let transactionId = new ObjectID().toHexString()
+      let accountId     = accountsData[0]._id.toHexString()
+      let update        = {
+        description: 'Missing transactionId'
+      }
+
+      request(app)
+        .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
+        .send(update)
+        .expect(404)
+        .expect( (res) => {
+          expect(res.body.code).to.equal(404)
+          expect(res.body.message).to.equal('Transaction not found')
+        })
+        .end(done)
+    })
+
+    it('Returns a 400 error if the description is blank', (done) => {
+      let accountId     = transactionsData[1].accountId.toHexString()
+      let transactionId = transactionsData[1]._id.toHexString()
+      let update        = {
+        description: '',
+      }
+
+      request(app)
+        .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
+        .send(update)
+        .expect(400)
+        .expect( (res) => {
+          let error = res.body.errors[0]
+          expect(error.code).to.equal(701)
+          expect(error.path).to.equal('description')
+          expect(error.type).to.equal('required')
+          expect(error.value).to.equal('')
+          expect(error.message).to.match(/description is required/i)
+        })
+        .end(done)
+    })
+
+    it('Returns a 400 error for an invalid date', (done) => {
+      let accountId     = transactionsData[1].accountId.toHexString()
+      let transactionId = transactionsData[1]._id.toHexString()
+      let update        = {
+        date: 'invalid-date',
+      }
+
+      request(app)
+        .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
+        .send(update)
+        .expect(400)
+        .expect( (res) => {
+          let error = res.body.errors[0]
+          expect(error.code).to.equal(701)
+          expect(error.path).to.equal('date')
+          expect(error.type).to.equal('cast-error')
+          expect(error.value).to.equal(update.date)
+          expect(error.message).to.match(/cast to date failed/i)
+        })
+        .end(done)
+    })
+
+    it('Returns a 400 error for an invalid charge enum', (done) => {
+      let accountId     = transactionsData[1].accountId.toHexString()
+      let transactionId = transactionsData[1]._id.toHexString()
+      let update        = { charge: 'invalid-charge' }
+
+      request(app)
+        .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
+        .send(update)
+        .expect(400)
+        .expect( (res) => {
+          let error = res.body.errors[0]
+          expect(error.code).to.equal(701)
+          expect(error.path).to.equal('charge')
+          expect(error.value).to.equal(update.charge)
+          expect(error.message).to.match(/is not a valid enum value/i)
+        })
+        .end(done)
+    })
+
+    it('Returns a 400 error for an invalid amount', (done) => {
+      let accountId     = transactionsData[1].accountId.toHexString()
+      let transactionId = transactionsData[1]._id.toHexString()
+      let update        = { amount: 'invalid-amount' }
+
+      request(app)
+        .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
+        .send(update)
+        .expect(400)
+        .expect( (res) => {
+          let error = res.body.errors[0]
+          expect(error.code).to.equal(701)
+          expect(error.path).to.equal('amount')
+          expect(error.value).to.equal(update.amount)
+          expect(error.message).to.match(/cast to number failed for value/i)
+        })
+        .end(done)
+    })
+
+    it('Forbids updates to change the accountId and the userId', (done) => {
+      let accountId     = transactionsData[1].accountId.toHexString()
+      let transactionId = transactionsData[1]._id.toHexString()
+      let update        = { 
+        description:  'Security Test',
+        amount:       -2500.00,
+        accountId:    new ObjectID().toHexString(),
+        userId:       new ObjectID().toHexString(),
+      }
+
+      request(app)
+        .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
+        .send(update)
+        .expect(200)
+        .expect( (res) => {
+          let {transaction} = res.body
+          expect(transaction.description).to.equal(update.description)
+          expect(transaction.amount).to.equal(update.amount)
+          expect(transaction.accountId).to.equal(accountId)
+          expect(transaction.userId).to.not.equal(update.userId)
+        })
+        .end(done)
+    })
+
+    it('Updates a transaction', (done) => {
+      let accountId     = transactionsData[1].accountId.toHexString()
+      let transactionId = transactionsData[1]._id.toHexString()
+      let update        = { 
+        date:         new Date('3/17/2020').toISOString(),
+        description:  'Updated transaction',
+        category:     'Category',
+        amount:       -2500.00,
+      }
+
+      request(app)
+        .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
+        .send(update)
+        .expect(200)
+        .expect( (res) => {
+          let {transaction} = res.body
+          expect(transaction.date).to.equal(update.date)
+          expect(transaction.description).to.equal(update.description)
+          expect(transaction.category).to.equal(update.category)
+          expect(transaction.amount).to.equal(update.amount)
+          expect(transaction.accountId).to.equal(accountId)
+        })
+        .end( (err, res) => {
+          if(err) { return done(err) }
+
+          let {transaction} = res.body
+          Transaction
+            .findOne({
+              _id:        transaction._id, 
+              accountId:  transaction.accountId
+            })
+            .then( (result) => {
+              expect(result.description).to.equal(update.description)
+              expect(result.amount).to.equal(update.amount)
+              expect(result.date.toISOString()).to.equal(update.date)
+              expect(result.accountId.toHexString()).to.equal(transaction.accountId)
+              expect(result.userId.toHexString()).to.equal(transaction.userId)
+              done()
+            })
+            .catch( (err) => done(err) )
+        })
+    })
+    
   })
 
   /*
