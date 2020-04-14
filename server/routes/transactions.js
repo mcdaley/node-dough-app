@@ -206,44 +206,13 @@ router.post('/v1/accounts/:accountId/transactions', async (req, res) => {
       })
     }
 
-    /**
-     * IIEF to set the charge type and amount for a transaction. If the transaction is a
-     * debit then the amount is negative and if the transaction is a credit then
-     * the amount is positive. If the user submits and invalid charge then it defaults to
-     * credit and if the user submits an invalid amount then it defaults to 0.
-     * 
-     * @param  charge - Either 'debit' or 'credit'
-     * @param  amount - Transaction total
-     * @return Returns an object with the charge and amount.
-     */
-    let {charge, amount} = (function calculateAmount(charge = 'debit', amount = 0) { 
-      if(charge !== 'debit' && charge !== 'credit') { charge = 'debit' }
-      if(isNaN(amount)) { amount = 0}
-
-      let payment = {}
-      if(amount === 0) {
-        payment.charge = charge
-        payment.amount = 0
-      }
-      else if(charge === 'debit') {
-        payment.charge = 'debit'
-        payment.amount = -1 * Math.abs(amount)
-      }
-      else {
-        payment.charge = 'credit'
-        payment.amount = Math.abs(amount)
-      }
-      return payment
-    })(req.body.charge, req.body.amount)
-
     let transaction = new Transaction({
-      description:  req.body.description,
-      charge:       charge,
-      amount:       amount,
       date:         req.body.date     ? new Date(req.body.date) : new Date(),
       category:     req.body.category || '', 
-      userId:       user._id,                 
-      accountId:    accountId      
+      description:  req.body.description,
+      amount:       req.body.amount   || 0,
+      accountId:    accountId,
+      userId:       user._id,                       
     })
     logger.debug('Built transaction= %o', transaction)
 

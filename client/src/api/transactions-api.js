@@ -105,21 +105,19 @@ export default TransactionsAPI
  * transactions need a debit and credit field for the transaction data grid.
  * 
  * Map the transaction amount field to either the debit or credit field based
- * on the type of charge. I need to do this in the response, since I am storing the
- * amount in one field in the DB w/ the charge type of debit or credit.
- * 
- * NOTE: I SHOULD INVESTIGATE MOVING THIS LOGIC TO THE SERVER.
+ * on the amount of the charge. I need to do this, because in the data grid
+ * I am displaying the amount as either a debit or creidt.
  * 
  * @param {Array} transactions 
  */
 function setCreditAndDebitFields(transaction) {
-  if(transaction.charge === 'credit') {
-    transaction.credit = transaction.amount
-    transaction.debit  = ''
+  if(transaction.amount <= 0) {
+    transaction.debit   = transaction.amount
+    transaction.credit  = ''
   }
   else {
-    transaction.debit  = transaction.amount
-    transaction.credit = ''
+    transaction.credit  = transaction.amount
+    transaction.debit   = ''
   }
   return transaction
 }

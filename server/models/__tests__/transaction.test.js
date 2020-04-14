@@ -65,20 +65,6 @@ describe('Transaction', () => {
       })
     })
 
-    it('Requires a valid transaction type (i.e., debit or credit)', () => {
-      let invalidTransaction = new Transaction({
-        description:  'Invalid transaction type',
-        accountId:    account._id,
-        userId:       user._id,
-        charge:       'BAD',
-      })
-
-      invalidTransaction.validate( (err) => {
-        expect(err.errors.charge).to.exist
-        expect(err.errors.charge.message).to.match(/not a valid enum value/)
-      })
-    })
-
     it('Validates a transaction w/ minimum fields', () => {
       let transaction = new Transaction({
         description:  'Valid transaction',
@@ -95,7 +81,6 @@ describe('Transaction', () => {
       let transaction = new Transaction({
         description:  'Valid transaction',
         category:     'Groceries',
-        charge:       'debit',
         amount:       50.00,
         accountId:    account._id,
         userId:       user._id,
@@ -137,7 +122,6 @@ describe('Transaction', () => {
         _id:            new ObjectID(),
         description:    'Target',
         date:           new Date('3/24/2020').toISOString(),
-        charge:         'debit',
         amount:         -75.00,
         accountId:      accountsData[0]._id,
         userId:         accountsData[0].userId,
@@ -146,7 +130,6 @@ describe('Transaction', () => {
         _id:            new ObjectID(),
         description:    'Haystack Pizza',
         date:           new Date('3/17/2020').toISOString(),
-        charge:         'debit',
         amount:         -45.00,
         accountId:      accountsData[0]._id,
         userId:         accountsData[0].userId,
@@ -156,7 +139,6 @@ describe('Transaction', () => {
         description:    'Opening Balance',
         date:           new Date('3/01/2020').toISOString(),
         category:       'Balance',
-        charge:         'credit',
         amount:         500,
         accountId:      accountsData[0]._id,
         userId:         accountsData[0].userId,
@@ -318,7 +300,6 @@ describe('Transaction', () => {
         let update = { 
           description:    'Updated description',
           date:           new Date('4/12/2020').toISOString(),
-          charge:         'credit',
           amount:         200,
         }
         let options = { new: true }
@@ -326,7 +307,6 @@ describe('Transaction', () => {
         let result  = await Transaction.findOneAndUpdate(query, update, options)
         expect(result.date.toISOString()).to.equal(update.date)
         expect(result.description).to.equal(update.description)
-        expect(result.charge).to.equal(update.charge)
         expect(result.amount).to.equal(update.amount)
       })
     })

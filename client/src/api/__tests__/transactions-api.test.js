@@ -13,8 +13,7 @@ const transactionsData = [
     date:         '2020-03-31T07:00:00.000Z',
     description:  'Transaction One', 
     category:     'Groceries', 
-    charge:       'debit', 
-    amount:       100.00,
+    amount:       -100.00,
     accountId:    '99',
     userId:       'Me'
   },
@@ -23,8 +22,7 @@ const transactionsData = [
     date:         '2020-04-01T07:00:00.000Z',
     description:  'Transaction Two', 
     category:     'Household', 
-    charge:       'debit', 
-    amount:       55.55,
+    amount:       -55.55,
     accountId:    '99',
     userId:       'Me'
   },
@@ -33,7 +31,6 @@ const transactionsData = [
     date:         '2020-04-01T07:00:00.000Z',
     description:  'Transaction Test Credit', 
     category:     'Salary', 
-    charge:       'credit', 
     amount:       300.00,
     accountId:    '99',
     userId:       'Me'
@@ -54,7 +51,6 @@ describe('Transactions API', () => {
         date:         '2020-03-31T07:00:00.000Z',
         description:  'Transaction One', 
         category:     'Groceries', 
-        charge:       'debit', 
         amount:       -100.00
       }
 
@@ -68,7 +64,6 @@ describe('Transactions API', () => {
       expect(transaction.date).toBe('2020-03-31T07:00:00.000Z')
       expect(transaction.description).toMatch(/transaction on/i)
       expect(transaction.category).toBe('Groceries')
-      expect(transaction.charge).toBe('debit')
       expect(transaction.amount).toBe(-100)
       expect(transaction.debit).toBe(-100)
       expect(transaction.credit).toBe('')
@@ -84,7 +79,6 @@ describe('Transactions API', () => {
         date:         '2020-03-31T07:00:00.000Z',
         description:  'Transaction Two', 
         category:     'Salary', 
-        charge:       'credit', 
         amount:       400.00
       }
 
@@ -98,7 +92,6 @@ describe('Transactions API', () => {
       expect(transaction.date).toBe('2020-03-31T07:00:00.000Z')
       expect(transaction.description).toMatch(/transaction two/i)
       expect(transaction.category).toBe(params.category)
-      expect(transaction.charge).toBe(params.charge)
       expect(transaction.amount).toBe(params.amount)
       expect(transaction.debit).toBe('')
       expect(transaction.credit).toBe(params.amount)
@@ -141,9 +134,11 @@ describe('Transactions API', () => {
 
       const transactions = await TransactionsAPI.findByAccountId(transactionsData[0].accountId)
       expect(transactions.length).toBe(3)
+      
       expect(transactions[0].description).toBe(transactionsData[0].description)
       expect(transactions[0].debit).toBe(transactionsData[0].amount)
       expect(transactions[0].credit).toBe('')
+
       expect(transactions[2].description).toBe(transactionsData[2].description)
       expect(transactions[2].credit).toBe(transactionsData[2].amount)
       expect(transactions[2].debit).toBe('')

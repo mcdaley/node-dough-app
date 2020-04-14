@@ -234,8 +234,8 @@ describe('Transactions API', () => {
       transaction = {
         _id:          new ObjectID().toHexString(),
         description:  'Test Transaction',
-        charge:       'debit',
-        amount:       40.25,
+        //* charge:       'debit',
+        amount:       -40.25,
         date:         new Date('3/20/2020').toISOString(),
         userId:       accountsData[0].userId.toHexString(),
       }
@@ -291,6 +291,41 @@ describe('Transactions API', () => {
         .end(done)
     })
 
+    it('Returns a 400 error if the description is blank', (done) => {
+      let badTxn = {...transaction, description: ''}
+
+      request(app)
+        .post(`/api/v1/accounts/${accountId}/transactions`)
+        .send(badTxn)
+        .expect(400)
+        .expect( (res) => {
+          let error = res.body.errors[0]
+          expect(error.code).to.equal(701)
+          expect(error.path).to.equal('description')
+          expect(error.type).to.equal('required')
+          expect(error.value).to.equal('')
+          expect(error.message).to.match(/description is required/i)
+        })
+        .end(done)
+    })
+
+    it('Returns a 400 error for an invalid amount', (done) => {
+      let badTxn = {...transaction, amount: 'invalid-amount'}
+
+      request(app)
+        .post(`/api/v1/accounts/${accountId}/transactions`)
+        .send(badTxn)
+        .expect(400)
+        .expect( (res) => {
+          let error = res.body.errors[0]
+          expect(error.code).to.equal(701)
+          expect(error.path).to.equal('amount')
+          expect(error.value).to.equal(badTxn.amount)
+          expect(error.message).to.match(/cast to number failed for value/i)
+        })
+        .end(done)
+    })
+
     it('Creates a debit transaction', (done) => {
       
       request(app)
@@ -299,7 +334,7 @@ describe('Transactions API', () => {
         .expect(201)
         .expect( (res) => {
           expect(res.body.description).to.equal(transaction.description)
-          expect(res.body.amount).to.equal(-1 * transaction.amount)
+          expect(res.body.amount).to.equal(transaction.amount)
           expect(res.body.accountId).to.equal(accountId)
           expect(res.body.date).to.equal(transaction.date)
           expect(res.body.userId).to.equal(transaction.userId)
@@ -316,7 +351,7 @@ describe('Transactions API', () => {
             })
             .then( (result) => {
               expect(result.description).to.equal(transaction.description)
-              expect(result.amount).to.equal(-1 * Math.abs(transaction.amount))
+              expect(result.amount).to.equal(transaction.amount)
               expect(result.date.toISOString()).to.equal(transaction.date)
               expect(result.accountId.toHexString()).to.equal(accountId)
               expect(result.userId.toHexString()).to.equal(transaction.userId)
@@ -327,7 +362,7 @@ describe('Transactions API', () => {
     })
 
     it('Creates a credit transaction', (done) => {
-      let creditTxn = {...transaction, charge: 'credit', amount: 75.00}
+      let creditTxn = {...transaction, amount: 75.00}
       
       request(app)
         .post(`/api/v1/accounts/${accountId}/transactions`)
@@ -360,36 +395,7 @@ describe('Transactions API', () => {
             })
             .catch( (err) => done(err) )
         })
-    })
-
-    it('Creates default debit transaction for an invalid charge and amount', (done) => {
-      // Change the charge type from 'debit'
-      let badTxn = {...transaction, charge: 'BAD', amount: 'NaN'}
-
-      request(app)
-        .post(`/api/v1/accounts/${accountId}/transactions`)
-        .send(badTxn)
-        .expect(201)
-        .expect( (res, err) => {
-          if(err) { return done(err) }
-
-          Transaction
-            .findOne({
-              description:  badTxn.description, 
-              accountId:    accountId
-            })
-            .then( (result) => {
-              expect(result.description).to.equal(badTxn.description)
-              expect(result.charge).to.equal('debit')
-              expect(result.amount).to.equal(0)
-              expect(result.date.toISOString()).to.equal(badTxn.date)
-              expect(result.accountId.toHexString()).to.equal(accountId)
-              expect(result.userId.toHexString()).to.equal(badTxn.userId)
-            })
-            .catch( (err) => done(err) )
-        })
-        .end(done)
-    })
+    }) 
   })
 
   /*
@@ -508,25 +514,6 @@ describe('Transactions API', () => {
           expect(error.type).to.equal('cast-error')
           expect(error.value).to.equal(update.date)
           expect(error.message).to.match(/cast to date failed/i)
-        })
-        .end(done)
-    })
-
-    it('Returns a 400 error for an invalid charge enum', (done) => {
-      let accountId     = transactionsData[1].accountId.toHexString()
-      let transactionId = transactionsData[1]._id.toHexString()
-      let update        = { charge: 'invalid-charge' }
-
-      request(app)
-        .put(`/api/v1/accounts/${accountId}/transactions/${transactionId}`)
-        .send(update)
-        .expect(400)
-        .expect( (res) => {
-          let error = res.body.errors[0]
-          expect(error.code).to.equal(701)
-          expect(error.path).to.equal('charge')
-          expect(error.value).to.equal(update.charge)
-          expect(error.message).to.match(/is not a valid enum value/i)
         })
         .end(done)
     })
