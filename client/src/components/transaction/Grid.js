@@ -1,10 +1,23 @@
 //-----------------------------------------------------------------------------
 // client/src/components/transaction/Grid.js
 //-----------------------------------------------------------------------------
-import React          from 'react'
-import numeral        from 'numeral'
+import React, { useState }        from 'react'
+import numeral                    from 'numeral'
 
-import BootstrapTable from 'react-bootstrap-table-next'
+import BootstrapTable             from 'react-bootstrap-table-next'
+import cellEditFactory, { Type }  from 'react-bootstrap-table2-editor'
+
+///////////////////////////////////////////////////////////////////////////////
+// TODO: 04/14/2020
+// UPDATE THE TRANSACTIONS GRID W/ THE FOLLOWING:
+//  - ADD SELECT MENU FOR CATEGORIES.
+//  - FIGURE OUT HOW TO CALL THE UPDATE API TO UPDATE THE TRANSACTION.
+//  - VERIFY THE RUNNING BALANCE IS UPDATED.
+//  - FIGURE OUT HOW TO GET THE INDEX OF THE EDITED TRANSACTION INSTEAD OF
+//    LOOPING THROUGH THE ARRAY OF TRANSACTIONS.
+//  - CLEAR OLD VALUES FOR DEBIT AND CREDIT.
+//  - USE react-date-picker FOR EDITING TRANSACTION DATES.
+///////////////////////////////////////////////////////////////////////////////
 
 /**
  * Component that returns a grid container a list of transactions.
@@ -12,10 +25,9 @@ import BootstrapTable from 'react-bootstrap-table-next'
  * @param {prop} transactions - Array of transactions
  */
 const TransactionGrid = (props) => {
-  ////////////////////////////////////
-  // Currency format => '$0,0.00'
-  ////////////////////////////////////
-  const transactions = props.transactions
+
+  const [transactions, setTransactions] = useState(props.transactions)
+
   const columns      = [
     {
       dataField:    'date',
@@ -27,29 +39,90 @@ const TransactionGrid = (props) => {
         }
         return `${('0' + (dateObj.getUTCMonth() + 1)).slice(-2)}/${('0' + dateObj.getUTCDate()).slice(-2)}/${dateObj.getUTCFullYear()}`;
       },
+      editor:       { type: Type.DATE },
       align:        'center',
-      headerAlign:  'center'
+      headerAlign:  'center',
+      headerStyle:  { width: '200px' },
     }, 
     {
       dataField:    'description',
       text:         'Description',
+      validator:    (newValue, row, column) => {
+        if(newValue === '') {
+          return {
+            valid:    false,
+            message: 'Description is required'
+          }
+        }
+        return true
+      },
       headerStyle:  { width: '40%' }
     }, 
     {
       dataField:    'category',
       text:         'Category',
+      editor:       {
+        type:    Type.SELECT,
+        options: [{
+          value: '',
+          label: ''
+        }, {
+          value: 'Groceries',
+          label: 'Groceries',
+        }, {
+          value: 'Household',
+          label: 'Household',
+        }, {
+          value: 'Dining',
+          label: 'Dining',
+        }, {
+          value: 'Deposit',
+          label: 'Deposit',
+        }, {
+          value: 'Salary',
+          label: 'Salary',
+        }]
+      },
     },
     {
       dataField:    'debit',
       text:         'Debit',
-      formatter:    (num) => num === '' ? num : numeral(num).format('$0,0.00'),
+      formatter:    (cell, row, rowIndex, extraData) => {
+        if(row.amount < 0) {
+          return numeral(row.amount).format('$0,0.00')
+        }
+        return ''
+      },
+      validator:    (newValue, row, column) => {
+        if (isNaN(newValue)) {
+          return {
+            valid:    false,
+            message:  'Debit must be a number'
+          };
+        }
+        return true;
+      },
       align:        'right',
       headerAlign:  'right'
     },
     {
       dataField:    'credit',
       text:         'Credit',
-      formatter:    (num) => num === '' ? num : numeral(num).format('$0,0.00'),
+      formatter:    (cell, row, rowIndex, extraData) => {
+        if(row.amount > 0) {
+          return numeral(row.amount).format('$0,0.00')
+        }
+        return ''
+      },
+      validator:    (newValue, row, column) => {
+        if (isNaN(newValue)) {
+          return {
+            valid:    false,
+            message:  'Credit must be a number'
+          };
+        }
+        return true;
+      },
       align:        'right',
       headerAlign:  'right'
     },
@@ -57,16 +130,71 @@ const TransactionGrid = (props) => {
       dataField:    'balance',
       text:         'Balance',
       formatter:    (num) => num === '' ? num : numeral(num).format('$0,0.00'),
+      editable:     false,
       align:        'right',
       headerAlign:  'right'
     },
   ]
 
   /**
+   * Called right before the application saves the changes to a cell. It
+   * handles the logic for editing the values for debit and credit using
+   * the amount.
+   * @param {*} oldValue 
+   * @param {*} newValue 
+   * @param {*} row 
+   * @param {*} column 
+   */
+  const handleBeforeSaveCell = (oldValue, newValue, row, column) => {
+    console.log(`[debug] Before save the cell`)
+    if(oldValue === newValue) return
+
+    //
+    // Inner function to update the transactions with the edited transaction
+    // @param {Transaction} transaction 
+    //
+    function updateTransactions(transaction) {
+      let transactionList     = [...transactions]
+      let index               = transactionList.findIndex( (el) => el._id === row._id)
+      transactionList[index]  = transaction
+      transactionList.sort( (a, b) => new Date(b.date) - new Date(a.date) )
+      setTransactions(transactionList)
+    }
+
+    let transaction = {}
+    if(column.dataField === 'debit') {
+      transaction = {...row, amount: -1 * Math.abs(newValue)}
+    }
+    else if(column.dataField === 'credit') {
+      transaction = {...row, amount: Math.abs(newValue)}
+      
+    }
+    else {
+      transaction = {...row, [column.dataField]: newValue}
+    }
+    updateTransactions(transaction)
+    return
+  }
+
+  /**
    * Render the transactions grid
    */
   return (
-    <BootstrapTable keyField='_id' data={ transactions } columns={ columns } />
+    <BootstrapTable 
+      keyField  = '_id' 
+      data      = { transactions } 
+      columns   = { columns } 
+      cellEdit  = { cellEditFactory({
+        mode:           'click',
+        blurToSave:     true,
+        beforeSaveCell: (oldValue, newValue, row, column) => {
+          handleBeforeSaveCell(oldValue, newValue, row, column)
+        }
+      }) }
+      tabIndexCell
+      condensed
+      striped
+    />
   )
 }
 
