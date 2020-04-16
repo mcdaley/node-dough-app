@@ -40,7 +40,7 @@ const TransactionGrid = (props) => {
       editor:       { type: Type.DATE },
       align:        'center',
       headerAlign:  'center',
-      headerStyle:  { width: '200px' },
+      headerStyle:  { width: '15%' },
     }, 
     {
       dataField:    'description',
@@ -54,7 +54,7 @@ const TransactionGrid = (props) => {
         }
         return true
       },
-      headerStyle:  { width: '40%' }
+      headerStyle:  { width: '25%' }
     }, 
     {
       dataField:    'category',
@@ -81,6 +81,7 @@ const TransactionGrid = (props) => {
           label: 'Salary',
         }]
       },
+      headerStyle:  { width: '15%' },
     },
     {
       dataField:    'debit',
@@ -101,7 +102,8 @@ const TransactionGrid = (props) => {
         return true;
       },
       align:        'right',
-      headerAlign:  'right'
+      headerAlign:  'right',
+      headerStyle:  { width: '15%' },
     },
     {
       dataField:    'credit',
@@ -122,7 +124,8 @@ const TransactionGrid = (props) => {
         return true;
       },
       align:        'right',
-      headerAlign:  'right'
+      headerAlign:  'right',
+      headerStyle:  { width: '15%' },
     },
     {
       dataField:    'balance',
@@ -130,7 +133,8 @@ const TransactionGrid = (props) => {
       formatter:    (num) => num === '' ? num : numeral(num).format('$0,0.00'),
       editable:     false,
       align:        'right',
-      headerAlign:  'right'
+      headerAlign:  'right',
+      headerStyle:  { width: '15%' },
     },
   ]
 

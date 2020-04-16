@@ -3,10 +3,11 @@
 //-----------------------------------------------------------------------------
 import React, { useState }  from 'react'
 import {
-  Row,
+  Button,
   Col,
   Form,
-  Button,
+  Row,
+  Table,
 }                           from 'react-bootstrap'
 
 import TransactionsAPI      from '../../api/transactions-api'
@@ -100,59 +101,64 @@ const TransactionForm = (props) => {
 
   return (
     <Form onSubmit={handleSubmit} style={{marginBottom: '1.0rem'}}>
-      <Form.Row>
-        <Col>
-          <Form.Control 
-            value       = {date} 
-            placeholder = 'mm/dd/yyyy' 
-            onChange    = {onChangeDate} 
-          />
-        </Col>
-        <Col>
-          <Form.Control 
-            value       = {description}
-            placeholder = 'Description' 
-            onChange    = {onChangeDescription}
-          />
-        </Col>
-        <Col>
-          <Form.Control 
-            value       = {category}
-            placeholder = 'Category' 
-            onChange    = {onChangeCategory} 
-          />
-        </Col>
-        <Col>
-          <Form.Control
-            value       = {debit}
-            placeholder = 'Debit'
-            onChange    = {onChangeDebit} 
-          />
-        </Col>
-        <Col>
-          <Form.Control
-            value       = {credit}
-            placeholder = 'Credit' 
-            onChange    = {onChangeCredit} 
-          />
-        </Col>
-        <Col>
-          <Button 
-            variant = 'primary' 
-            type    = 'submit'
-          >
-              Save
-          </Button>
-        </Col>
-        <Col>
-          <Button 
-            variant = 'secondary' 
-            onClick = {clearForm}
-          >
-              Clear
-          </Button>
-        </Col>
-      </Form.Row>
+      <Table size='sm' variant='dark'>
+        <tbody>
+          <tr>
+            <td style={{width: '15%'}}>
+              <Form.Control 
+                value       = {date} 
+                placeholder = 'mm/dd/yyyy' 
+                onChange    = {onChangeDate} 
+              />
+            </td>
+            <td style={{width: '25%'}}>
+              <Form.Control 
+                value       = {description}
+                placeholder = 'Description' 
+                onChange    = {onChangeDescription}
+              />
+            </td>
+            <td style={{width: '15%'}}> 
+              <Form.Control 
+                value       = {category}
+                placeholder = 'Category' 
+                onChange    = {onChangeCategory} 
+              />
+            </td>
+            <td style={{width: '15%'}}> 
+              <Form.Control
+                value       = {debit}
+                placeholder = 'Debit'
+                onChange    = {onChangeDebit} 
+              />
+            </td>
+            <td style={{width: '15%'}}>
+              <Form.Control
+                value       = {credit}
+                placeholder = 'Credit' 
+                onChange    = {onChangeCredit} 
+              />
+            </td>
+            <td style={{width: '15%'}}>
+              <Button 
+                variant = 'primary' 
+                type    = 'submit'
+                size    = 'md'
+                style   = {{marginLeft: '0.50rem', marginRight: '0.50rem'}}
+              >
+                  Save
+              </Button>
+              <Button 
+                variant = 'secondary'
+                size    = 'md'
+                onClick = {clearForm}
+              >
+                  Clear
+              </Button>
+            </td>
+          </tr>
+        </tbody>
+      </Table>
     </Form>
   )
 
