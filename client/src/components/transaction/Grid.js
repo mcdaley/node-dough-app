@@ -26,8 +26,6 @@ import cellEditFactory, { Type }  from 'react-bootstrap-table2-editor'
  */
 const TransactionGrid = (props) => {
 
-  const [transactions, setTransactions] = useState(props.transactions)
-
   const columns      = [
     {
       dataField:    'date',
@@ -146,33 +144,20 @@ const TransactionGrid = (props) => {
    * @param {*} column 
    */
   const handleBeforeSaveCell = (oldValue, newValue, row, column) => {
-    console.log(`[debug] Before save the cell`)
     if(oldValue === newValue) return
 
-    //
-    // Inner function to update the transactions with the edited transaction
-    // @param {Transaction} transaction 
-    //
-    function updateTransactions(transaction) {
-      let transactionList     = [...transactions]
-      let index               = transactionList.findIndex( (el) => el._id === row._id)
-      transactionList[index]  = transaction
-      transactionList.sort( (a, b) => new Date(b.date) - new Date(a.date) )
-      setTransactions(transactionList)
-    }
-
-    let transaction = {}
+    let updateParams = {}
     if(column.dataField === 'debit') {
-      transaction = {...row, amount: -1 * Math.abs(newValue)}
+      updateParams.amount = -1 * Math.abs(newValue)
     }
     else if(column.dataField === 'credit') {
-      transaction = {...row, amount: Math.abs(newValue)}
-      
+      updateParams.amount = Math.abs(newValue)
     }
     else {
-      transaction = {...row, [column.dataField]: newValue}
+      updateParams[column.dataField] = newValue
     }
-    updateTransactions(transaction)
+
+    props.onUpdate(row.accountId, row._id, updateParams)
     return
   }
 
@@ -182,7 +167,7 @@ const TransactionGrid = (props) => {
   return (
     <BootstrapTable 
       keyField  = '_id' 
-      data      = { transactions } 
+      data      = { props.transactions } 
       columns   = { columns } 
       cellEdit  = { cellEditFactory({
         mode:           'click',

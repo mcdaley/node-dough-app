@@ -6,7 +6,6 @@ import {
   Container, 
   Row,
   Col,
-  Table,
   Button, 
 }                                       from 'react-bootstrap'
 import { useParams, useHistory }        from 'react-router-dom'
@@ -87,6 +86,39 @@ const PagesAccountsShow = () => {
     setTransactions(transactionList)
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+  // TODO: 04/15/2020
+  //  - STANDARDIZE ON THE TransactionsAPI RESPONSES. THE create() METHOD
+  //    RETURNS AN OBJECT { transaction: {} } AND THE update() METHOD RETURNS
+  //    THE DATA {}.
+  /////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Callback to handle a transaction update. It finds and replaces the updated
+   * transaction in the transactions list to re-render the transaction list.
+   * 
+   * @param {Object} transaction 
+   */
+  const onUpdateTransaction = async (accountId, transactionId, params) => {
+    console.debug(`[debug] Update transaction id[${transactionId}]= `, params)
+
+    try {
+      let transaction         = await TransactionsAPI.update(accountId, transactionId, params)
+
+      let transactionList     = [...transactions]
+      let index               = transactionList.findIndex( (el) => el._id === transaction._id)
+      transactionList[index]  = transaction
+      transactionList.sort( (a, b) => new Date(b.date) - new Date(a.date) )
+      transactionList         = runningBalance(transactionList)
+    
+      setTransactions(transactionList)
+    }
+    catch(error) {
+      console.log(`[error] Failed to update the transaction, error= `, error)
+      setErrors(error)
+    }
+  }
+
   /**
    * Sort the transactions and calculate the running balance for the account.
    * @param {*} transaction - Transaction that was just created.
@@ -137,7 +169,10 @@ const PagesAccountsShow = () => {
     if(transactions.length === 0) return null
 
     return (
-      <TransactionGrid transactions={transactions} />
+      <TransactionGrid 
+        transactions  = {transactions} 
+        onUpdate      = {onUpdateTransaction}
+      />
     )
   }
 
