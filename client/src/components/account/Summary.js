@@ -4,10 +4,12 @@
 import React          from 'react'
 import { useHistory } from 'react-router-dom'
 import {
-  Container,
   Col,
   Row,
 }                     from 'react-bootstrap'
+import numeral        from 'numeral'
+import { FontAwesomeIcon }  from '@fortawesome/react-fontawesome'
+import { faPiggyBank }      from '@fortawesome/free-solid-svg-icons'
 import PropTypes      from 'prop-types'
 
 /**
@@ -31,25 +33,32 @@ const AccountSummary = (props) => {
    * Redirect the user to the account details page.
    */
   const handleClick = (evt) => {
-    //* alert(`Clicked on account=  ${name}`)
     history.push(`/accounts/show/${_id}`)
   }
 
   // Render the account summary
   return (
-    <Container fluid onClick={handleClick}>
-      <Row style={{border:'1px solid grey', borderRadius:5, padding:'1.0rem', margin:'1.0rem'}}>
-        <Col xs={8}>
-          <h2 style={{color:'red', textAlign:'left', fontSize:'1.20rem'}}>{name}</h2>
-          <h6 style={{textAlign:'left'}}>{financialInstitute}</h6>
-        </Col>
-        <Col>
-          <div style={{textAlign:'right', fontSize:36}}>
-            {balance}
+    <Row 
+      onClick   = {handleClick}
+      className = 'no-gutters account-summary-container'
+    >
+      <Col xs={8}>
+        <div className='account-name-container'>
+          <div className='account-icon'>
+            <FontAwesomeIcon icon={faPiggyBank} />
           </div>
-        </Col>
-      </Row>
-    </Container>
+          <div className='account-nickname'>
+            <h2> {name} </h2>
+            <h6> {financialInstitute} </h6>
+          </div>
+        </div>
+      </Col>
+      <Col>
+        <div className='balance'>
+          {numeral(balance).format('$0,0.00')}
+        </div>
+      </Col>
+    </Row>
   )
 }
 
@@ -60,7 +69,8 @@ AccountSummary.propTypes = {
   financialInstitute: PropTypes.string.isRequired,
   balance:            PropTypes.number.isRequired,
   accountType:        PropTypes.oneOf(['Checking', 'Savings', 'Credit Card']),
-  asOfDate:           PropTypes.instanceOf(Date)
+  asOfDate:           PropTypes.instanceOf(Date),
+  onClick:            PropTypes.func,
 };
 
 // Export the AccountSummary
