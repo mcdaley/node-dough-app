@@ -86,6 +86,19 @@ const PagesAccountsShow = () => {
     setTransactions(transactionList)
   }
 
+  /**
+   * Sort the transactions and calculate the running balance for the account.
+   * @param {*} transaction - Transaction that was just created.
+   */
+  const buildTransactionList = (transaction) => {
+    let txnList = [...transactions, transaction].sort( (a,b) => {
+      return new Date(b.date) - new Date(a.date)
+    })
+    txnList = runningBalance(txnList)
+
+    return txnList
+  }
+
   /////////////////////////////////////////////////////////////////////////////
   // TODO: 04/15/2020
   //  - STANDARDIZE ON THE TransactionsAPI RESPONSES. THE create() METHOD
@@ -117,19 +130,6 @@ const PagesAccountsShow = () => {
       console.log(`[error] Failed to update the transaction, error= `, error)
       setErrors(error)
     }
-  }
-
-  /**
-   * Sort the transactions and calculate the running balance for the account.
-   * @param {*} transaction - Transaction that was just created.
-   */
-  const buildTransactionList = (transaction) => {
-    let txnList = [...transactions, transaction].sort( (a,b) => {
-      return new Date(b.date) - new Date(a.date)
-    })
-    txnList = runningBalance(txnList)
-
-    return txnList
   }
 
   /**
