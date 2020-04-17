@@ -72,7 +72,7 @@ function AccountForm(props) {
              values,
              touched,
              errors,
-            isSubmitting }) => (
+             isSubmitting }) => (
             <Form noValidate onSubmit={handleSubmit} data-testid='account-form'>
               {/* Account Nickname */}
               <Form.Group controlId='nickname'>
