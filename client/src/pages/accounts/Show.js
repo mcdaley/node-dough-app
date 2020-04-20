@@ -10,7 +10,6 @@ import {
 }                                       from 'react-bootstrap'
 import { useParams, useHistory }        from 'react-router-dom'
 
-import AccountsAPI                      from '../../api/accounts-api'
 import TransactionsAPI                  from '../../api/transactions-api'
 import AccountSummary                   from '../../components/account/Summary'
 import TransactionGrid                  from '../../components/transaction/Grid'
@@ -27,33 +26,17 @@ const PagesAccountsShow = () => {
   let   { id }                    = useParams()   // Get accountId from the URL
   const [accountId, setAccountId] = useState(id)
 
-  // Get the user account
-  const [account, setAccount] = useState({})
-  useEffect( () => {
-    const fetchData = async () => {
-      try {
-        let result = await AccountsAPI.find(accountId)
-        
-        console.log(`[debug] AccountsAPI.get(), account = `, result)
-        setAccount(result);
-      } 
-      catch (error) {
-        console.log(`[error] Failed to retrieve user accounts, error= `, error)
-        setErrors(error)
-      }
-    }
-    fetchData()
-  }, [accountId])
-
-  // Get the account's transactions
+  // Get the account and its transactions
+  const [account, setAccount]           = useState({})
   const [transactions, setTransactions] = useState([])
   useEffect( () => {
     const fetchData = async () => {
       try {
         let result = await TransactionsAPI.findByAccountId(accountId)
 
-        console.log(`[debug] TransactionsAPI.findByAccountId(${accountId})= `, result)
-        setTransactions(result)
+        //* console.log(`[debug] TransactionsAPI.findByAccountId(${accountId})= `, result)
+        setAccount(result.account)
+        setTransactions(result.transactions)
       }
       catch(error) {
         console.log(`[error] Failed to retrieve account transactions, error= `, error)
@@ -80,7 +63,7 @@ const PagesAccountsShow = () => {
    * @param {Object} transaction - Transaction that was just created in DB
    */
   const onCreateTransaction = ({transaction}) => {
-    console.debug(`[debug] Created transaction= `, transaction)
+    //* console.debug(`[debug] Created transaction= `, transaction)
 
     let transactionList = buildTransactionList(transaction)
     setTransactions(transactionList)
@@ -94,6 +77,7 @@ const PagesAccountsShow = () => {
     let txnList = [...transactions, transaction].sort( (a,b) => {
       return new Date(b.date) - new Date(a.date)
     })
+
     txnList = runningBalance(txnList)
 
     return txnList
@@ -104,6 +88,9 @@ const PagesAccountsShow = () => {
   //  - STANDARDIZE ON THE TransactionsAPI RESPONSES. THE create() METHOD
   //    RETURNS AN OBJECT { transaction: {} } AND THE update() METHOD RETURNS
   //    THE DATA {}.
+  //  - 04/18/20 => SHOULD MOVE TO RETURNING AN OBJECT {} AS THAT GIVES 
+  //    MORE FLEXIBILITY IN THE FUTURE. NEED TO UPDATE THE
+  //    TransactionsAPI.update() to return {transaction}
   /////////////////////////////////////////////////////////////////////////////
 
   /**

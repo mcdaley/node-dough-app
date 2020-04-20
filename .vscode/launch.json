@@ -46,31 +46,32 @@
       "type": "node",
       "request": "launch",
       "name": "Jest All",
-      "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": ["--runInBand"],
+      "program": "${workspaceFolder}/client/node_modules/.bin/react-scripts",
+      "args": ["test", "--runInBand"],
+      "cwd": "${workspaceRoot}/client",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "disableOptimisticBPs": true,
-      "windows": {
-        "program": "${workspaceFolder}/node_modules/jest/bin/jest",
-      }
+      "disableOptimisticBPs": true
     },
     {
       "type": "node",
       "request": "launch",
       "name": "Jest Current File",
-      "program": "${workspaceFolder}/client/node_modules/.bin/jest",
+      "program": "${workspaceFolder}/client/node_modules/.bin/react-scripts",
       "args": [
-        "${fileBasenameNoExtension}",
-        "--config",
-        "jest.config.js"
+        "test", 
+        "${fileBasenameNoExtension}", 
+        "--codeCoverage=false",
+        "--runInBand=true",
+        "--no-cache", 
+        "--watchAll=false"
       ],
+      "cwd": "${workspaceRoot}/client",
+      "protocol": "inspector",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "disableOptimisticBPs": true,
-      "windows": {
-        "program": "${workspaceFolder}/client/node_modules/jest/bin/jest",
-      }
+      "trace": true
     }
   ]
 }

@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// client/src/pages/accounts/__tests__/__mocks__/accounts-api.js
+// client/src/__mocks__/accounts-api.js
 //-----------------------------------------------------------------------------
 export default {
   get:    jest.fn().mockResolvedValue([]),

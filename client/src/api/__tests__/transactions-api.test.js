@@ -6,12 +6,25 @@ import TransactionsAPI  from '../transactions-api'
 
 jest.mock('axios')      // https://jestjs.io/docs/en/mock-functions#mocking-modules
 
+// Mock account data
+const accountsData = [
+  { 
+    _id:                '99', 
+    name:               'Test Checking Account', 
+    financialInstitute: 'Bank', 
+    type:               'Checking', 
+    balance:            1000.00,
+    asOfDate:           '2020-03-01T07:00:00.000Z',
+    userId:             'Me'
+  },
+]
+
 // Mock transaction data for an account
 const transactionsData = [
   { 
     _id:          '1',
-    date:         '2020-03-31T07:00:00.000Z',
-    description:  'Transaction One', 
+    date:         '2020-03-17T07:00:00.000Z',
+    description:  'Expense Transaction One', 
     category:     'Groceries', 
     amount:       -100.00,
     accountId:    '99',
@@ -20,7 +33,7 @@ const transactionsData = [
   { 
     _id:          '2',
     date:         '2020-04-01T07:00:00.000Z',
-    description:  'Transaction Two', 
+    description:  'Expense Transaction Two', 
     category:     'Household', 
     amount:       -55.55,
     accountId:    '99',
@@ -28,8 +41,8 @@ const transactionsData = [
   },
   { 
     _id:          '3',
-    date:         '2020-04-01T07:00:00.000Z',
-    description:  'Transaction Test Credit', 
+    date:         '2020-04-04T07:00:00.000Z',
+    description:  'Deposit Transaction', 
     category:     'Salary', 
     amount:       300.00,
     accountId:    '99',
@@ -50,17 +63,29 @@ describe('Transactions API', () => {
   describe('findByAccountId', () => {
     it('Returns an array of transactions', async () => {
       axiosMock.get.mockResolvedValueOnce({
-        data: { transactions: transactionsData },
+        data: { account: accountsData[0], transactions: transactionsData },
       })
 
-      const transactions = await TransactionsAPI.findByAccountId(transactionsData[0].accountId)
-      expect(transactions.length).toBe(3)
+      const {account, transactions} = await TransactionsAPI.findByAccountId(accountsData[0]._id)
       
+      // Verify the account
+      expect(account._id).toBe(accountsData[0]._id)
+      expect(account.name).toBe(accountsData[0].name)
+      expect(account.financialInstitute).toBe(accountsData[0].financialInstitute)
+      expect(account.type).toBe(accountsData[0].type)
+      expect(account.balance).toBe(accountsData[0].balance)
+      expect(account.asOfDate).toBe(accountsData[0].asOfDate)
+      expect(account.userId).toBe(accountsData[0].userId)
+
+      // Verify the transactions
+      expect(transactions.length).toBe(3)
       expect(transactions[0].description).toBe(transactionsData[0].description)
+      expect(transactions[0].amount).toBe(transactionsData[0].amount)
       expect(transactions[0].debit).toBe(transactionsData[0].amount)
       expect(transactions[0].credit).toBe('')
 
       expect(transactions[2].description).toBe(transactionsData[2].description)
+      expect(transactions[2].amount).toBe(transactionsData[2].amount)
       expect(transactions[2].credit).toBe(transactionsData[2].amount)
       expect(transactions[2].debit).toBe('')
     })

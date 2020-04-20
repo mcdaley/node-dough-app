@@ -8,6 +8,35 @@ import axios  from 'axios'
  */
 const TransactionsAPI = {
   /**
+   * Fetch and return all of the transactions for the specified account.
+   * @param  {string}  accountId - Account ID
+   * @return {promise} Returns array of transactions
+   */
+  findByAccountId(accountId) {
+    return new Promise( async (resolve, reject) => {
+      if(!accountId) reject({ accountId: {code: 400, message: 'Account Id is required'} })
+
+      const url = `http://localhost:5000/api/v1/accounts/${accountId}/transactions`
+      try {
+        let result        = await axios.get(url)
+        let account       = result.data.account
+        let transactions  = result.data.transactions.map( (txn) => setCreditAndDebitFields(txn) )
+
+        //* console.log(`[debug] Account Id=[${accountId}], transactions = `, transactions)
+        resolve({account, transactions});
+      }
+      catch(error) {
+        //* console.log(`[error] Failed to fetch transactions for account id=[${accountId}], error= `, error)
+        reject({
+          server: {
+            code:     500,
+            message:  `Unable to get transactions for account id=[${accountId}]`,
+          }
+        })
+      }
+    })
+  },
+  /**
    * Create a new transaction for an account. Calls the POST /api/v1/account/:accountId/transactions
    * API endpoint to create the transaction.
    * 
@@ -138,34 +167,6 @@ const TransactionsAPI = {
             }
           })
         }
-      }
-    })
-  },
-  /**
-   * Fetch and return all of the transactions for the specified account.
-   * @param  {string}  accountId - Account ID
-   * @return {promise} Returns array of transactions
-   */
-  findByAccountId(accountId) {
-    return new Promise( async (resolve, reject) => {
-      if(!accountId) reject({ accountId: {code: 400, message: 'Account Id is required'} })
-
-      const url = `http://localhost:5000/api/v1/accounts/${accountId}/transactions`
-      try {
-        let result        = await axios.get(url)
-        let transactions  = result.data.transactions.map( (txn) => setCreditAndDebitFields(txn) )
-
-        //* console.log(`[debug] Account Id=[${accountId}], transactions = `, transactions)
-        resolve(transactions);
-      }
-      catch(error) {
-        //* console.log(`[error] Failed to fetch transactions for account id=[${accountId}], error= `, error)
-        reject({
-          server: {
-            code:     500,
-            message:  `Unable to get transactions for account id=[${accountId}]`,
-          }
-        })
       }
     })
   }

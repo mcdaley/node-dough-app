@@ -45,6 +45,7 @@ const TransactionGrid = (props) => {
     {
       dataField:    'description',
       text:         'Description',
+      classes:      'test-id-grid',
       validator:    (newValue, row, column) => {
         if(newValue === '') {
           return {
@@ -170,16 +171,17 @@ const TransactionGrid = (props) => {
    */
   return (
     <BootstrapTable 
-      keyField  = '_id' 
-      data      = { props.transactions } 
-      columns   = { columns } 
-      cellEdit  = { cellEditFactory({
+      keyField    = '_id' 
+      data        = { props.transactions } 
+      columns     = { columns } 
+      cellEdit    = { cellEditFactory({
         mode:           'click',
         blurToSave:     true,
         beforeSaveCell: (oldValue, newValue, row, column) => {
           handleBeforeSaveCell(oldValue, newValue, row, column)
         }
       }) }
+      rowClasses  = 'transaction-grid'    // Dummy class for each row needed for testing
       tabIndexCell
       condensed
       striped

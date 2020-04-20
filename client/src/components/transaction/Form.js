@@ -82,7 +82,7 @@ const TransactionForm = (props) => {
         }}
         validationSchema = {transactionValidationSchema}
         onSubmit         = { async (values, {setSubmitting, resetForm}) => {
-          console.log(`[debug] onSubmit callback, values= `, values)
+          //* console.log(`[debug] onSubmit callback, values= `, values)
           
           setSubmitting(true)
 
@@ -95,7 +95,7 @@ const TransactionForm = (props) => {
 
           try {
             let result = await TransactionsAPI.create(accountId, transaction)
-            console.log(`[info] Created transaction: ${JSON.stringify(result, undefined, 2)}`)
+            //* console.log(`[info] Created transaction: ${JSON.stringify(result, undefined, 2)}`)
       
             props.onSubmit(result)
             resetForm()
